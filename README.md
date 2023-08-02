@@ -22,7 +22,7 @@ X-API-Key: <api-key>
 
 # Docker setup
 
-The docker images are available via `sedrad/simpleobjectstore-admin:1.0.0` and `sedrad/simpleobjectstore:1.0.0`.
+The docker images are available via [`sedrad/simpleobjectstore-admin`](https://hub.docker.com/repository/docker/sedrad/simpleobjectstore-admin/general) and [`sedrad/simpleobjectstore`](https://hub.docker.com/repository/docker/sedrad/simpleobjectstore/general).
 
 The included `docker-compose.yml` shows what you need to run the containers.
 
