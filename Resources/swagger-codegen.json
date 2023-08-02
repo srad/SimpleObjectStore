@@ -1,0 +1,8 @@
+{
+    "appName": "SimpleObjectStore",
+    "appDescription": "Simple object store for all kind of files with an included admin interface REST API, authentication with OpenID and simple access control to served files.",
+    "infoUrl": "https://github.com/srad/SimpleObjectStore",
+    "licenseInfo" : "Dual license, open source and free for non commercial and charity use.",
+    "licenseUrl": "",
+    "infoEmail": ""
+}

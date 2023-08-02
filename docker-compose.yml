@@ -1,0 +1,34 @@
+﻿version: '3.9'
+
+services:
+
+  simple-object-store:
+    container_name: simple-object-store
+    image: sedrad/simpleobjectstore
+    #build:
+    #  context: ./SimpleObjectStore
+    #  dockerfile: Dockerfile
+    volumes:
+      - ./data:/data     
+    ports:
+      - '5000:80'
+
+  simple-object-store-ui:
+    container_name: simple-object-store-ui
+    image: sedrad/simpleobjectstore-admin
+    volumes:
+      - ./keys:/root/.aspnet/DataProtection-Keys
+    #build:
+    #  context: ./SimpleObjectStore.Admin
+    #  dockerfile: Dockerfile
+    environment:
+      - API__Endpoint=${API_ENDPOINT}
+      - API__Key=${API_KEY}
+      - OpenId__Authority=${OPENID_AUTHORITY}
+      - OpenId__ClientId=${OPENID_CLIENT_ID}
+      - OpenId__ClientSecret=${OPENID_CLIENT_SECRET}
+      - DisableHttpsMetadata=true
+    ports:
+      - '5001:80'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

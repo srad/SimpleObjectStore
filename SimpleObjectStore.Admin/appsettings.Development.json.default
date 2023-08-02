@@ -1,0 +1,18 @@
+{
+  "OpenId": {
+    "Authority": "http://localhost:9000/realms/master",
+    "ClientId": "objectstore-ui",
+    "ClientSecret": "<client-secret>"
+  },
+  "API": {
+    "Endpoint": "https://localhost:44312",
+    "Key": "<sqlite-default-api-key>"
+  },
+  "DetailedErrors": true,
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  }
+}

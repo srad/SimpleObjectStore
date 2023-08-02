@@ -1,0 +1,2 @@
+﻿
+dotnet ef database update
