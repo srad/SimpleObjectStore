@@ -5,12 +5,12 @@ In order to use it you must provide and OpenID authenticator, like Keycloak.
 
 You can either use the admin interface to manage your buckets or use the API (as the admin UI does itself).
 
-https://github.com/srad/SimpleObjectStore/assets/1612461/809cc01c-8c96-47fa-a94d-9db2d9e458b0
+https://github.com/srad/SimpleObjectStore/assets/1612461/0cfd755b-c351-434e-8272-6624c4333006
 
 # API
 
 You can use the API to manage the buckets and files.
-An [API documentation](https://htmlpreview.github.io/?https://github.com/srad/SimpleObjectStore/blob/main/SimpleObjectStore/Docs/index.html) is contained in the repo.
+An [API documentation](https://htmlpreview.github.io/?https://github.com/srad/SimpleObjectStore/blob/main/SimpleObjectStore/Docs/v1/index.html) is contained in the repo.
 
 In order to authenticate you need to provide an valid API key which is generated for you and printed in the console, once you launched the docker image the first time.
 You need to provide the header:
