@@ -1,4 +1,5 @@
 using System.Net;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -49,11 +50,10 @@ builder.Services.AddAuthentication(options =>
         options.SaveTokens = true;
         options.GetClaimsFromUserInfoEndpoint = true;
         options.UseTokenLifetime = false;
-        options.RequireHttpsMetadata = builder.Environment.IsProduction() && !(builder.Configuration["DisableHttpsMetadata"] != null && builder.Configuration["DisableHttpsMetadata"]=="true");
+        options.RequireHttpsMetadata = builder.Environment.IsProduction() && !(builder.Configuration["DisableHttpsMetadata"] != null && builder.Configuration["DisableHttpsMetadata"] == "true");
         options.Scope.Clear();
         options.Scope.Add("openid");
-        options.TokenValidationParameters = new TokenValidationParameters()
-            { NameClaimType = "name", RoleClaimType = "groups" };
+        options.TokenValidationParameters = new TokenValidationParameters { NameClaimType = "name", RoleClaimType = ClaimTypes.Role };
 
         options.Events = new OpenIdConnectEvents
         {
@@ -69,7 +69,7 @@ builder.Services.AddAuthentication(options =>
                 context.HandleResponse();
                 context.Response.Redirect("/access-denied");
                 return Task.CompletedTask;
-            }
+            },
         };
     });
 

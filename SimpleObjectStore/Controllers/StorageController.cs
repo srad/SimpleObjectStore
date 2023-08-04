@@ -54,8 +54,8 @@ public class StorageController : ControllerBase
     /// <param name="bucketId"></param>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    [HttpGet($"exists/{{{nameof(bucketId)}}}/{{{nameof(fileName)}}}")]
-    public async Task<bool> FileExistsAsync(string bucketId, string fileName) => await _context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == _slugHelper.GenerateSlug(fileName));
+    [HttpGet($"itemexists/{{{nameof(bucketId)}}}/{{{nameof(fileName)}}}")]
+    public async Task<bool> ExistsAsync(string bucketId, string fileName) => await _context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == _slugHelper.GenerateSlug(fileName));
 
     [HttpPost("{bucketId}")]
     public async Task<ActionResult<List<CreateStorageFileResult>>> PostStorageFile(string bucketId, [FromForm] IEnumerable<IFormFile> files)
@@ -119,7 +119,7 @@ public class StorageController : ControllerBase
                 {
                     FileName = file.FileName,
                     StorageFile = storage,
-                    Success = true
+                    Success = true,
                 });
             }
             catch (Exception e)
@@ -148,7 +148,7 @@ public class StorageController : ControllerBase
 
         try
         {
-            _logger.LogInformation("Deleting file '{file}'", storageFile.FilePath);
+            _logger.LogInformation("Deleting file '{FilePath}'", storageFile.FilePath);
             System.IO.File.Delete(storageFile.FilePath);
             _context.BucketFiles.Remove(storageFile);
             await _context.SaveChangesAsync();
