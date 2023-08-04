@@ -55,10 +55,10 @@ These values will be taken if the `appsettings.json` configuration entries are m
 
 ## Openid
 
-The authenticated user must be in the `admin` group and the key for the role must map to `groups`.
+The claim name for the OpenId authorization is `roles` which must contain the role `objectstore` to gain access to the administration interface.
 
-When the container is started the first time, a default API key is created which you can see in the docker logs.
-You need to specify it in the `API_KEY` key. This is used by the user interface to access the server.
+When the container is started the first time a default API key is created and written to the console, which you can see in the docker logs.
+You need to specify it in the `API_KEY` environment variable. This is used by the administration interface to access the API and it could be used by any other client to access the SimpleObjectStore.
 
 # License
 

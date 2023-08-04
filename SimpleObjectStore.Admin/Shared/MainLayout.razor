@@ -1,11 +1,11 @@
 ﻿@using SimpleObjectStore.Services.v1
 @using SimpleObjectStore.Admin.Components
 @using SimpleObjectStore.Admin.Extensions
-@using Microsoft.IdentityModel.Tokens
 @inherits LayoutComponentBase
-@inject NavigationManager NavigationManager
 @inject SimpleObjectStoreClient Client
 @inject IJSRuntime JsRuntime
+
+@attribute [Authorize(Roles = "objectstore")]
 
 <PageTitle>Administration</PageTitle>
 
@@ -140,21 +140,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
-        var user = (await AuthStat).User;
-
-        if (!user.Identity.IsAuthenticated)
-        {
-            NavigationManager.NavigateTo("/login");
-            return;
-        }
-
-        if (!user.IsInRole("admin"))
-        {
-            NavigationManager.NavigateTo("/logout");
-            return;
-        }
-
         StorageInfo = await Client.StorageInfoAsync();
         ApiKeys = await Client.ApiKeysAllAsync();
         AllowedHosts = await Client.AllowedHostsAllAsync();
