@@ -1,6 +1,6 @@
 ﻿# SimpleObjectStore
 
- [![Build Status](https://teamcity.sedrad.com/app/rest/builds/buildType:(id:SimpleObjectStore_Build)/statusIcon)](https://teamcity/viewType.html?buildTypeId=SimpleObjectStore_Build&guest=1)
+ [![Build Status](https://teamcity.sedrad.com/app/rest/builds/buildType:(id:SimpleObjectStore_Build)/statusIcon)](https://teamcity.sedrad.com/viewType.html?buildTypeId=SimpleObjectStore_Build&guest=1)
 
 SimpleObjectStore is a simple alternative Amazon S3. Is based on a server with REST API and includes an admin interface.
 In order to use it you must provide and OpenID authenticator, like Keycloak.
