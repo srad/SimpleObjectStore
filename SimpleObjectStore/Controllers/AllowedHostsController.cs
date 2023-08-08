@@ -12,17 +12,31 @@ namespace SimpleObjectStore.Controllers;
 public class AllowedHostsController : ControllerBase
 {
     private readonly IAllowedHostsService _service;
+    private readonly ILogger<AllowedHostsController> _logger;
 
-    public AllowedHostsController(IAllowedHostsService service)
+    public AllowedHostsController(IAllowedHostsService service, ILogger<AllowedHostsController> logger)
     {
         _service = service;
+        _logger = logger;
     }
 
     [HttpGet]
-    public async Task<List<AllowedHost>> GetAsync() => await _service.ToListAsync();
+    public async Task<ActionResult<IEnumerable<AllowedHost>>> GetAsync() => Ok(await _service.ToListAsync());
 
     [HttpDelete($"{{{nameof(host)}}}")]
-    public async Task DeleteAsync(string host) => await _service.DeleteAsync(host);
+    public async Task<IActionResult> DeleteAsync(string host)
+    {
+        try
+        {
+            await _service.DeleteAsync(host);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
+    }
 
     /// <summary>
     /// Adds a new white listed host name.
@@ -30,5 +44,16 @@ public class AllowedHostsController : ControllerBase
     /// <param name="host"></param>
     /// <returns></returns>
     [HttpPost($"{{{nameof(host)}}}")]
-    public async Task<AllowedHost> PostAsync(string host) => await _service.CreateAsync(host);
+    public async Task<ActionResult<AllowedHost>> PostAsync(string host)
+    {
+        try
+        {
+            return Ok(await _service.CreateAsync(host));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
+    }
 }

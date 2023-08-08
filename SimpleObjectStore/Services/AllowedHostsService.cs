@@ -23,7 +23,7 @@ public class AllowedHostsService : IAllowedHostsService
         await _context.AllowedHosts.Where(x => x.Hostname == host).ExecuteDeleteAsync();
     }
     
-    public async Task<List<AllowedHost>> ToListAsync() => await _context.AllowedHosts.ToListAsync();
+    public async Task<IEnumerable<AllowedHost>> ToListAsync() => await _context.AllowedHosts.ToListAsync();
 
     public async Task<AllowedHost> CreateAsync(string host)
     {
