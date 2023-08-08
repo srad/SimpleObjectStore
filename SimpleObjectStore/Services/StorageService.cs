@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SimpleObjectStore.Helpers;
+using SimpleObjectStore.Helpers.Interfaces;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Models.DTO;
 using SimpleObjectStore.Services.Interfaces;

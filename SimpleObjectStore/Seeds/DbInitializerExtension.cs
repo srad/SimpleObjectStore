@@ -1,4 +1,4 @@
-﻿using SimpleObjectStore.Helpers;
+﻿using SimpleObjectStore.Helpers.Interfaces;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Services;
 

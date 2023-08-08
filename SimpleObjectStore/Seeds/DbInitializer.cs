@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SimpleObjectStore.Helpers;
+using SimpleObjectStore.Helpers.Interfaces;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Services;
 
@@ -83,7 +83,7 @@ internal static class DbInitializer
                     StorageFileId = Guid.NewGuid().ToString(),
                     FileName = file.Name,
                     StoredFileName = filename,
-                    FilePath = Path.Combine(file.Directory.ToString(), filename),
+                    FilePath = Path.Combine(file.Directory!.ToString(), filename),
                     CreatedAt = DateTimeOffset.Now,
                     FileSize = file.Length,
                     FileSizeMB = String.Format("{0:0.00}", (float)file.Length / 1024 / 1024),
