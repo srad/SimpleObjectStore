@@ -1,4 +1,4 @@
-﻿namespace SimpleObjectStore.Helpers;
+﻿namespace SimpleObjectStore.Helpers.Interfaces;
 
 public interface ISlug
 {

@@ -4,6 +4,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using SimpleObjectStore.Filters;
 using SimpleObjectStore.Helpers;
+using SimpleObjectStore.Helpers.Interfaces;
 using SimpleObjectStore.Http;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Seeds;
@@ -46,6 +47,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqli
 builder.Services.AddScoped<ApiKeyService>();
 builder.Services.AddScoped<ApiKeyAuthorizationFilter>();
 builder.Services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
+builder.Services.AddScoped<IValidator<string>, StorageNameValidator>();
 builder.Services.AddScoped<ISlug, StorageSlug>();
 builder.Services.AddScoped<IAllowedHostsService, AllowedHostsService>();
 builder.Services.AddScoped<IBucketsService, BucketsService>();

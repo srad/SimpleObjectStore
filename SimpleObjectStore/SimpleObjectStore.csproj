@@ -26,10 +26,8 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.8" />
-        <PackageReference Include="Moq" Version="4.20.1" />
         <PackageReference Include="Slugify.Core" Version="4.0.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-        <PackageReference Include="xunit" Version="2.5.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -41,6 +39,7 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="storage\cf3bd6e4-80ec-4f0e-98b0-a859da84afbb\265e5e70-c72b-4a15-be4d-ef05967b884c.json" />
       <_ContentIncludedByDefault Remove="storage\cf3bd6e4-80ec-4f0e-98b0-a859da84afbb\products-1686125701330.json" />
+
     </ItemGroup>
 
 
