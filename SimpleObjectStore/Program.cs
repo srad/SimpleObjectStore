@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using SimpleObjectStore.Filters;
+using SimpleObjectStore.Helpers;
 using SimpleObjectStore.Http;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Seeds;
 using SimpleObjectStore.Services;
+using SimpleObjectStore.Services.Interfaces;
 
 // Handle data folders and paths.
 
@@ -44,18 +46,19 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqli
 builder.Services.AddScoped<ApiKeyService>();
 builder.Services.AddScoped<ApiKeyAuthorizationFilter>();
 builder.Services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
+builder.Services.AddScoped<StorageSlug>();
+builder.Services.AddScoped<AllowedHostsService>();
+builder.Services.AddScoped<BucketsService>();
+builder.Services.AddScoped<StorageService>();
 
-builder.Services.AddControllers().AddJsonOptions(x =>
-    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Version = "v1", Title = "SimpleObjectStore API" }); });
 
-builder.Services.AddOutputCache(options =>
-{
-    options.AddBasePolicy(b => b.Cache());
-});
+builder.Services.AddOutputCache(options => { options.AddBasePolicy(b => b.Cache()); });
 
 var app = builder.Build();
 

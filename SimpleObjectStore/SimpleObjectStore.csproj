@@ -37,12 +37,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Migrations\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <_ContentIncludedByDefault Remove="storage\cf3bd6e4-80ec-4f0e-98b0-a859da84afbb\265e5e70-c72b-4a15-be4d-ef05967b884c.json" />
       <_ContentIncludedByDefault Remove="storage\cf3bd6e4-80ec-4f0e-98b0-a859da84afbb\products-1686125701330.json" />
     </ItemGroup>
+
+
+
 
 </Project>

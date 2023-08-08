@@ -17,7 +17,7 @@
     <nav class="flex-column px-3">
         <div class="nav-item">
             <NavLink class="nav-link bg-primary px-3" @onclick="AddBucket">
-                Add Bucket
+                <span style="cursor: pointer">Add Bucket</span>
             </NavLink>
         </div>
         @if (Buckets != null)
@@ -62,11 +62,8 @@
                 return;
             }
 
-            var newBucket = await Client.BucketsPOSTAsync(new CreateBucket()
-            {
-                Name = name
-            });
-            Buckets.Add(newBucket);
+            var newBucket = await Client.BucketsPOSTAsync(name);
+            Buckets?.Add(newBucket);
         }
         catch (Exception e)
         {

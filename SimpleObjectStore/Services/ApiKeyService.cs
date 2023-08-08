@@ -1,11 +1,7 @@
 ﻿using System.Security.Cryptography;
+using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Services;
-
-public interface IApiKeyService
-{
-    string GenerateApiKey();
-}
 
 /// <summary>
 /// Source: https://www.camiloterevinto.com/post/simple-and-secure-api-keys-using-asp-net-core

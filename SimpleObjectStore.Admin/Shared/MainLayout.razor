@@ -49,7 +49,7 @@
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Allowed Hosts
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" style="width: 500px">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-1 bg-transparent" style="width: 500px">
                             @foreach (var host in AllowedHosts)
                             {
                                 <li>
@@ -78,7 +78,7 @@
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             API Keys
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" style="width: 500px">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-1 bg-transparent" style="width: 500px">
                             @foreach (var key in ApiKeys)
                             {
                                 <li>
@@ -131,7 +131,7 @@
 </style>
 
 @code{
-    private StorageInfo? StorageInfo { get; set; }
+    private StorageStats? StorageInfo { get; set; }
     private ICollection<ApiKey>? ApiKeys { get; set; }
     private ICollection<AllowedHost>? AllowedHosts { get; set; }
 

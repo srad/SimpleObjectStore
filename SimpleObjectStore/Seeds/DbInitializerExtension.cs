@@ -1,4 +1,5 @@
-﻿using SimpleObjectStore.Models;
+﻿using SimpleObjectStore.Helpers;
+using SimpleObjectStore.Models;
 using SimpleObjectStore.Services;
 
 namespace SimpleObjectStore.Seeds;
@@ -15,7 +16,8 @@ internal static class DbInitializerExtension
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
             var service = services.GetRequiredService<ApiKeyService>();
-            DbInitializer.Initialize(context, service);
+            var slug = services.GetRequiredService<StorageSlug>();
+            DbInitializer.Initialize(context, service, slug);
         }
         catch (Exception ex)
         {

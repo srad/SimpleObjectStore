@@ -7,9 +7,9 @@ namespace SimpleObjectStore.Models;
 [Index(nameof(Name), IsUnique = true), Index(nameof(DirectoryName), IsUnique = true)]
 public class Bucket
 {
-    [Key, StringLength(36)] public string BucketId { get; set; }
-    [Required] public string Name { get; set; }
-    [Required] public string DirectoryName { get; set; }
+    [Key, StringLength(36), Column(TypeName = "TEXT COLLATE NOCASE")] public string BucketId { get; set; }
+    [Required, Column(TypeName = "TEXT COLLATE NOCASE")] public string Name { get; set; }
+    [Required, Column(TypeName = "TEXT COLLATE NOCASE")] public string DirectoryName { get; set; }
     [Required] public DateTimeOffset CreatedAt { get; set; }
     [Required] public DateTimeOffset LastAccess { get; set; }
     [NotMapped] public int Size { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace SimpleObjectStore.Models.DTO;
 
-public class StorageInfo
+public class StorageStats
 {
     public float FreeGB { get; set; }
     public float SizeGB { get; set; }

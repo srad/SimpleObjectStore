@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.EntityFrameworkCore;
 using SimpleObjectStore.Filters;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Models.DTO;
-using Slugify;
+using SimpleObjectStore.Services;
 
 namespace SimpleObjectStore.Controllers;
 
@@ -14,177 +13,127 @@ namespace SimpleObjectStore.Controllers;
 [ApiKey]
 public class StorageController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
-    private readonly string _storagePath;
     private readonly ILogger<StorageController> _logger;
-    private readonly SlugHelper _slugHelper;
-    private string BucketPath(string directoryName) => Path.Combine(_storagePath, directoryName);
+    private readonly StorageService _service;
 
-    public StorageController(ApplicationDbContext context, ILogger<StorageController> logger)
+    public StorageController(ILogger<StorageController> logger, StorageService service)
     {
-        _context = context;
-        _storagePath = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY") ?? throw new ArgumentNullException();
         _logger = logger;
-        _slugHelper = new SlugHelper();
+        _service = service;
     }
 
     [HttpGet, OutputCache]
     public async Task<ActionResult<IEnumerable<BucketFile>>> GetFiles()
     {
-        return await _context.BucketFiles.AsNoTracking().ToListAsync();
+        try
+        {
+            return Ok(await _service.ToListAsync());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet($"{{{nameof(id)}}}"), OutputCache]
     public async Task<ActionResult<BucketFile>> GetStorageFile(string id)
     {
-        var storageFile = await _context.BucketFiles.FindAsync(id);
-
-        if (storageFile == null)
+        try
         {
-            return NotFound();
+            return Ok(await _service.FindByIdAsync(id));
         }
-
-        return Ok(storageFile);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
     }
 
-    /// <summary>
-    /// Notice that this function slugs the filename before comparing it.
-    /// It does no raw comparison of names.
-    /// </summary>
-    /// <param name="bucketId"></param>
-    /// <param name="fileName"></param>
-    /// <returns></returns>
     [HttpGet($"itemexists/{{{nameof(bucketId)}}}/{{{nameof(fileName)}}}")]
-    public async Task<bool> ExistsAsync(string bucketId, string fileName) => await _context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == _slugHelper.GenerateSlug(fileName));
+    public async Task<ActionResult<bool>> ExistsAsync(string bucketId, string fileName)
+    {
+        try
+        {
+            return Ok(await _service.ExistsAsync(bucketId, fileName));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
+    }
 
     [HttpPost("{bucketId}")]
-    public async Task<ActionResult<List<CreateStorageFileResult>>> PostStorageFile(string bucketId, [FromForm] IEnumerable<IFormFile> files)
+    public async Task<ActionResult<List<CreateStorageFileResult>>> PostStorageFileAsync(string bucketId, [FromForm] List<IFormFile> files)
     {
-        var bucket = await _context.Buckets
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.BucketId == bucketId);
-
-        if (bucket == null)
+        try
         {
-            return NotFound("Bucket not found");
+            return Ok(await _service.SaveAsync(bucketId, files));
         }
-
-        var results = new List<CreateStorageFileResult>();
-        foreach (var file in files)
+        catch (Exception ex)
         {
-            try
-            {
-                // Either a random filename is produced or the original converted into a slug.
-
-                //var ext = Path.GetExtension(file.FileName);
-                //fileNameSlug = $"{Guid.NewGuid().ToString()}{ext}";
-                // Create slug and check if already exists.
-                var fileNameSlug = _slugHelper.GenerateSlug(file.FileName);
-                var fileExists = await _context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == fileNameSlug);
-                if (fileExists)
-                {
-                    results.Add(new CreateStorageFileResult
-                    {
-                        FileName = file.FileName,
-                        Success = false,
-                        ErrorMessage = $"A file '{fileNameSlug}' already exists in this bucket"
-                    });
-                    continue;
-                }
-
-                // Upload
-                var filePath = Path.Combine(BucketPath(bucket.DirectoryName), fileNameSlug);
-                await using var stream = System.IO.File.OpenWrite(filePath);
-                await file.CopyToAsync(stream);
-
-                var storage = new BucketFile
-                {
-                    StorageFileId = Guid.NewGuid().ToString(),
-                    FileName = file.FileName,
-                    StoredFileName = fileNameSlug,
-                    ContentType = file.ContentType,
-                    FilePath = filePath,
-                    CreatedAt = DateTimeOffset.Now,
-                    FileSize = stream.Length,
-                    FileSizeMB = String.Format("{0:0.00}", (float)stream.Length / 1024 / 1024),
-                    Private = false,
-                    AccessCount = 0,
-                    Url = $"{bucket.DirectoryName}/{fileNameSlug}",
-                    BucketId = bucketId,
-                    LastAccess = DateTimeOffset.Now,
-                };
-                await _context.BucketFiles.AddAsync(storage);
-                await _context.SaveChangesAsync();
-                results.Add(new CreateStorageFileResult()
-                {
-                    FileName = file.FileName,
-                    StorageFile = storage,
-                    Success = true,
-                });
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                results.Add(new CreateStorageFileResult()
-                {
-                    FileName = file.FileName,
-                    ErrorMessage = e.Message,
-                    Success = false
-                });
-            }
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
         }
-
-        return Ok(results);
     }
 
     [HttpDelete($"{{{nameof(id)}}}")]
-    public async Task<IActionResult> DeleteAsync(string id)
+    public async Task<ActionResult> DeleteAsync(string id)
     {
-        var storageFile = await _context.BucketFiles.FindAsync(id);
-        if (storageFile == null)
-        {
-            return NotFound("File not found");
-        }
-
         try
         {
-            _logger.LogInformation("Deleting file '{FilePath}'", storageFile.FilePath);
-            System.IO.File.Delete(storageFile.FilePath);
-            _context.BucketFiles.Remove(storageFile);
-            await _context.SaveChangesAsync();
+            await _service.DeleteAsync(id);
+            return Ok();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.LogError(e.Message);
-            return BadRequest($"Error deleting '{storageFile.FilePath}': {e.Message}");
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
         }
-
-        return Ok();
     }
 
     [HttpPost("private")]
-    public async Task PrivateAsync(string id) => await _context.BucketFiles
-        .Where(x => x.StorageFileId == id)
-        .ExecuteUpdateAsync(x => x.SetProperty(p => p.Private, true));
+    public async Task<ActionResult> PrivateAsync(string id)
+    {
+        try
+        {
+            await _service.PrivateAsync(id);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
+    }
 
     [HttpPost("public")]
-    public async Task PublicAsync(string id) => await _context.BucketFiles
-        .Where(x => x.StorageFileId == id)
-        .ExecuteUpdateAsync(x => x.SetProperty(p => p.Private, false));
+    public async Task<ActionResult> PublicAsync(string id)
+    {
+        try
+        {
+            await _service.PublicAsync(id);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
+    }
 
     [HttpGet("storageInfo"), OutputCache]
-    public StorageInfo GetStorageInfo()
+    public ActionResult<StorageStats> GetStorageInfo()
     {
-        var drive = new DriveInfo(_storagePath);
-        var free = (float)drive.TotalFreeSpace / 1024 / 1024 / 1024;
-        var total = (float)drive.TotalSize / 1024 / 1024 / 1024;
-
-        return new StorageInfo
+        try
         {
-            FreeGB = free,
-            SizeGB = total,
-            AvailablePercent = free / total * 100,
-            Name = drive.Name
-        };
+            return Ok(_service.GetStorageStatsAsync());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
     }
 }

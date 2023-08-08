@@ -56,21 +56,21 @@ namespace SimpleObjectStore.Migrations
                 {
                     b.Property<string>("BucketId")
                         .HasMaxLength(36)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT COLLATE NOCASE");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("DirectoryName")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT COLLATE NOCASE");
 
                     b.Property<DateTimeOffset>("LastAccess")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT COLLATE NOCASE");
 
                     b.Property<bool>("Private")
                         .HasColumnType("INTEGER");
@@ -90,19 +90,14 @@ namespace SimpleObjectStore.Migrations
                 {
                     b.Property<string>("StorageFileId")
                         .HasMaxLength(36)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT COLLATE NOCASE");
 
                     b.Property<long>("AccessCount")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("BucketId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(1024)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT COLLATE NOCASE");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -110,12 +105,12 @@ namespace SimpleObjectStore.Migrations
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(1024)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT COLLATE NOCASE");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasMaxLength(2048)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT COLLATE NOCASE");
 
                     b.Property<long>("FileSize")
                         .HasColumnType("INTEGER");
@@ -133,12 +128,12 @@ namespace SimpleObjectStore.Migrations
                     b.Property<string>("StoredFileName")
                         .IsRequired()
                         .HasMaxLength(1024)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT COLLATE NOCASE");
 
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasMaxLength(2048)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("TEXT COLLATE NOCASE");
 
                     b.HasKey("StorageFileId");
 
