@@ -12,58 +12,24 @@ namespace SimpleObjectStore.Controllers;
 [ApiKey]
 public class AllowedHostsController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly AllowedHostsService _service;
 
-    public AllowedHostsController(ApplicationDbContext context)
+    public AllowedHostsController(AllowedHostsService service)
     {
-        _context = context;
+        _service = service;
     }
 
     [HttpGet]
-    public async Task<List<AllowedHost>> GetKeysAsync() => await _context.AllowedHosts.ToListAsync();
+    public async Task<List<AllowedHost>> GetAsync() => await _service.ToListAsync();
 
     [HttpDelete($"{{{nameof(host)}}}")]
-    public async Task<ActionResult> DeleteAsync(string host)
-    {
-        if (await _context.AllowedHosts.CountAsync() == 1)
-        {
-            return BadRequest("At least one host must remain in database");
-        }
-
-        await _context.AllowedHosts.Where(x => x.Hostname == host).ExecuteDeleteAsync();
-
-        return Ok();
-    }
+    public async Task DeleteAsync(string host) => await _service.DeleteAsync(host);
 
     /// <summary>
     /// Adds a new white listed host name.
     /// </summary>
-    /// <param name="host">Host name</param>
+    /// <param name="host"></param>
     /// <returns></returns>
     [HttpPost($"{{{nameof(host)}}}")]
-    public async Task<ActionResult> PostAsync(string host)
-    {
-        // Validation
-        host = host.Trim().ToLower();
-
-        if (host.Contains("http"))
-        {
-            return BadRequest("Please provide only the hostname in the format 'host' without any prefixes or ports");
-        }
-
-        if (Uri.CheckHostName(host) == UriHostNameType.Unknown)
-        {
-            return BadRequest($"The hostname '{host}' is invalid");
-        }
-
-        if (await _context.AllowedHosts.AnyAsync(x => x.Hostname == host))
-        {
-            return BadRequest($"Hostname '{host}' already exists");
-        }
-
-        await _context.AllowedHosts.AddAsync(new AllowedHost { Hostname = host });
-        await _context.SaveChangesAsync();
-
-        return Ok();
-    }
+    public async Task<AllowedHost> PostAsync(string host) => await _service.CreateAsync(host);
 }

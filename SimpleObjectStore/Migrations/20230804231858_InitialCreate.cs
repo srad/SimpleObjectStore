@@ -12,6 +12,17 @@ namespace SimpleObjectStore.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "AllowedHosts",
+                columns: table => new
+                {
+                    Hostname = table.Column<string>(type: "TEXT", maxLength: 2048, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AllowedHosts", x => x.Hostname);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ApiKeys",
                 columns: table => new
                 {
@@ -30,9 +41,9 @@ namespace SimpleObjectStore.Migrations
                 name: "Buckets",
                 columns: table => new
                 {
-                    BucketId = table.Column<string>(type: "TEXT", maxLength: 36, nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    DirectoryName = table.Column<string>(type: "TEXT", nullable: false),
+                    BucketId = table.Column<string>(type: "TEXT COLLATE NOCASE", maxLength: 36, nullable: false),
+                    Name = table.Column<string>(type: "TEXT COLLATE NOCASE", nullable: false),
+                    DirectoryName = table.Column<string>(type: "TEXT COLLATE NOCASE", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     LastAccess = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     Private = table.Column<bool>(type: "INTEGER", nullable: false)
@@ -46,19 +57,18 @@ namespace SimpleObjectStore.Migrations
                 name: "BucketFiles",
                 columns: table => new
                 {
-                    StorageFileId = table.Column<string>(type: "TEXT", maxLength: 36, nullable: false),
-                    FileName = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: false),
-                    StoredFileName = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: false),
-                    ContentType = table.Column<string>(type: "TEXT", maxLength: 1024, nullable: false),
-                    FilePath = table.Column<string>(type: "TEXT", maxLength: 2048, nullable: false),
-                    Url = table.Column<string>(type: "TEXT", maxLength: 2048, nullable: false),
+                    StorageFileId = table.Column<string>(type: "TEXT COLLATE NOCASE", maxLength: 36, nullable: false),
+                    FileName = table.Column<string>(type: "TEXT COLLATE NOCASE", maxLength: 1024, nullable: false),
+                    StoredFileName = table.Column<string>(type: "TEXT COLLATE NOCASE", maxLength: 1024, nullable: false),
+                    FilePath = table.Column<string>(type: "TEXT COLLATE NOCASE", maxLength: 2048, nullable: false),
+                    Url = table.Column<string>(type: "TEXT COLLATE NOCASE", maxLength: 2048, nullable: false),
                     FileSize = table.Column<long>(type: "INTEGER", nullable: false),
                     FileSizeMB = table.Column<string>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
                     AccessCount = table.Column<long>(type: "INTEGER", nullable: false),
                     Private = table.Column<bool>(type: "INTEGER", nullable: false),
                     LastAccess = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    BucketId = table.Column<string>(type: "TEXT", nullable: false)
+                    BucketId = table.Column<string>(type: "TEXT COLLATE NOCASE", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -92,6 +102,9 @@ namespace SimpleObjectStore.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "AllowedHosts");
+
             migrationBuilder.DropTable(
                 name: "ApiKeys");
 

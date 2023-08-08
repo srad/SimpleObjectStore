@@ -5,6 +5,6 @@ namespace SimpleObjectStore.Admin.Extensions;
 
 public static class StorageInfoExtensions
 {
-    public static string FreeGbFormatted(this StorageInfo storageInfo) => storageInfo.FreeGB.ToString("F1", CultureInfo.InvariantCulture);
-    public static string SizeGbFormatted(this StorageInfo storageInfo) => storageInfo.SizeGB.ToString("F1", CultureInfo.InvariantCulture);
+    public static string FreeGbFormatted(this StorageStats storageStats) => storageStats.FreeGB.ToString("F1", CultureInfo.InvariantCulture);
+    public static string SizeGbFormatted(this StorageStats storageStats) => storageStats.SizeGB.ToString("F1", CultureInfo.InvariantCulture);
 }

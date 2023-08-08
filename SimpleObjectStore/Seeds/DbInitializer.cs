@@ -1,21 +1,21 @@
-﻿using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using SimpleObjectStore.Helpers;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Services;
-using Slugify;
 
 namespace SimpleObjectStore.Seeds;
 
 internal static class DbInitializer
 {
-    internal static async void Initialize(ApplicationDbContext dbContext, ApiKeyService service)
+    internal static async void Initialize(ApplicationDbContext dbContext, ApiKeyService service, StorageSlug storageSlug)
     {
         ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
         //await dbContext.Database.EnsureCreatedAsync();
         await dbContext.Database.MigrateAsync();
         await CreateApiKey(dbContext, service);
-        await ImportFilesFromStorage(dbContext);
+        await ImportFilesFromStorage(dbContext, storageSlug);
         await DeleteOrphans(dbContext);
+        await CreateAllowedHosts(dbContext);
         await CreateAllowedHosts(dbContext);
     }
 
@@ -43,12 +43,11 @@ internal static class DbInitializer
         }
     }
 
-    private static async Task ImportFilesFromStorage(ApplicationDbContext dbContext)
+    private static async Task ImportFilesFromStorage(ApplicationDbContext dbContext, ISlug slugHelper)
     {
         var folder = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY") ?? throw new MissingFieldException("storage path missing for initialization");
         var info = new DirectoryInfo(folder);
-        var helper = new SlugHelper();
-        
+
         foreach (var dir in info.GetDirectories())
         {
             // Import folders
@@ -70,7 +69,6 @@ internal static class DbInitializer
             }
 
             // Import files
-            var provider = new FileExtensionContentTypeProvider();
             var files = dir.GetFiles();
             foreach (var file in files)
             {
@@ -79,14 +77,12 @@ internal static class DbInitializer
                     continue;
                 }
 
-                provider.TryGetContentType(file.Name, out var contentType);
-                var filename = helper.GenerateSlug(file.Name);
+                var filename = slugHelper.Generate(file.Name);
                 var newFile = new BucketFile()
                 {
                     StorageFileId = Guid.NewGuid().ToString(),
                     FileName = file.Name,
                     StoredFileName = filename,
-                    ContentType = contentType,
                     FilePath = Path.Combine(file.Directory.ToString(), filename),
                     CreatedAt = DateTimeOffset.Now,
                     FileSize = file.Length,

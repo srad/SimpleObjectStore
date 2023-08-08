@@ -134,7 +134,7 @@
         try
         {
             Server = SettingsService.GetEndpoint();
-            var bucketResponse = await Client.BucketsGETAsync(BucketId);
+            var bucketResponse = await Client.IdAsync(BucketId);
             Bucket = new BucketViewModel
             {
                 BucketId = bucketResponse.BucketId,
@@ -145,7 +145,7 @@
                 Size = bucketResponse.Size,
                 Files = bucketResponse.Files.Select(x => new BucketFileViewModel
                 {
-                    FileUrl = x.FileUrl(Server),
+                    FileUrl = x.FileUrl(Server!),
                     FileName = x.FileName,
                     FileSize = x.FileSize,
                     FileSizeMB = x.FileSizeMB,
@@ -203,7 +203,7 @@
     // Upload one by one. Actually could be uploaded all in one go, but the NSwag
     // client generator messes up the list type.
                     var fileContent = new StreamContent(file.OpenReadStream(MaxFileSize));
-                    var uploads = new List<FileParameter> { new FileParameter(await fileContent.ReadAsStreamAsync(), file.Name, file.ContentType) };
+                    var uploads = new List<FileParameter> { new(await fileContent.ReadAsStreamAsync(), file.Name) };
 
                     var responses = await Client.StorageAllPOSTAsync(BucketId, uploads);
                     uploadResults.AddRange(responses);
