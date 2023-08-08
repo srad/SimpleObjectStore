@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.OutputCaching;
 using SimpleObjectStore.Filters;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Models.DTO;
-using SimpleObjectStore.Services;
+using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Controllers;
 
@@ -14,9 +14,9 @@ namespace SimpleObjectStore.Controllers;
 public class StorageController : ControllerBase
 {
     private readonly ILogger<StorageController> _logger;
-    private readonly StorageService _service;
+    private readonly IStorageService _service;
 
-    public StorageController(ILogger<StorageController> logger, StorageService service)
+    public StorageController(ILogger<StorageController> logger, IStorageService service)
     {
         _logger = logger;
         _service = service;

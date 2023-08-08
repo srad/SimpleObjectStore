@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SimpleObjectStore.Filters;
 using SimpleObjectStore.Models;
-using SimpleObjectStore.Services;
+using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Controllers;
 
@@ -12,42 +11,55 @@ namespace SimpleObjectStore.Controllers;
 [ApiKey]
 public class ApiKeysController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
-    private readonly ApiKeyService _apiKeyService;
+    private readonly ILogger<ApiKeysController> _logger;
+    private readonly IApiKeysService _service;
 
-    public ApiKeysController(ApplicationDbContext context, ApiKeyService apiKeyService)
+    public ApiKeysController(ILogger<ApiKeysController> logger, IApiKeysService service)
     {
-        _context = context;
-        _apiKeyService = apiKeyService;
+        _logger = logger;
+        _service = service;
     }
 
     [HttpGet]
-    public async Task<List<ApiKey>> GetKeysAsync() => await _context.ApiKeys.ToListAsync();
+    public async Task<ActionResult<IEnumerable<ApiKey>>> GetKeysAsync()
+    {
+        try
+        {
+            return Ok(await _service.ToListAsync());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
+    }
 
     [HttpDelete]
     public async Task<ActionResult> DeleteAsync(string key)
     {
-        if (await _context.ApiKeys.CountAsync() == 1)
+        try
         {
-            return BadRequest("At least one key must remain in database");
+            await _service.DeleteAsync(key);
+            return Ok();
         }
-        
-        await _context.ApiKeys.Where(x => x.Key == key).ExecuteDeleteAsync();
-
-        return Ok();
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPost]
-    public async Task<ApiKey> CreateAsync(string title)
+    public async Task<ActionResult<ApiKey>> CreateAsync(string title)
     {
-        var key = new ApiKey
+        try
         {
-            Key = _apiKeyService.GenerateApiKey(), Title = title, CreatedAt = DateTimeOffset.UtcNow, AccessTimeLimited = false
-        };
-
-        await _context.ApiKeys.AddAsync(key);
-        await _context.SaveChangesAsync();
-
-        return key;
+            return Ok(await _service.CreateAsync(title));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
     }
 }

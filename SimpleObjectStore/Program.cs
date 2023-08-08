@@ -46,10 +46,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqli
 builder.Services.AddScoped<ApiKeyService>();
 builder.Services.AddScoped<ApiKeyAuthorizationFilter>();
 builder.Services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
-builder.Services.AddScoped<StorageSlug>();
-builder.Services.AddScoped<AllowedHostsService>();
-builder.Services.AddScoped<BucketsService>();
-builder.Services.AddScoped<StorageService>();
+builder.Services.AddScoped<ISlug, StorageSlug>();
+builder.Services.AddScoped<IAllowedHostsService, AllowedHostsService>();
+builder.Services.AddScoped<IBucketsService, BucketsService>();
+builder.Services.AddScoped<IStorageService, StorageService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);

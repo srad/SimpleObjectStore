@@ -7,13 +7,13 @@ namespace SimpleObjectStore.Seeds;
 
 internal static class DbInitializer
 {
-    internal static async void Initialize(ApplicationDbContext dbContext, ApiKeyService service, StorageSlug storageSlug)
+    internal static async void Initialize(ApplicationDbContext dbContext, ApiKeyService service, ISlug slug)
     {
         ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
         //await dbContext.Database.EnsureCreatedAsync();
         await dbContext.Database.MigrateAsync();
         await CreateApiKey(dbContext, service);
-        await ImportFilesFromStorage(dbContext, storageSlug);
+        await ImportFilesFromStorage(dbContext, slug);
         await DeleteOrphans(dbContext);
         await CreateAllowedHosts(dbContext);
         await CreateAllowedHosts(dbContext);
