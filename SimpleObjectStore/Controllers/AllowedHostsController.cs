@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SimpleObjectStore.Filters;
 using SimpleObjectStore.Models;
-using SimpleObjectStore.Services;
+using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Controllers;
 
@@ -12,9 +11,9 @@ namespace SimpleObjectStore.Controllers;
 [ApiKey]
 public class AllowedHostsController : ControllerBase
 {
-    private readonly AllowedHostsService _service;
+    private readonly IAllowedHostsService _service;
 
-    public AllowedHostsController(AllowedHostsService service)
+    public AllowedHostsController(IAllowedHostsService service)
     {
         _service = service;
     }

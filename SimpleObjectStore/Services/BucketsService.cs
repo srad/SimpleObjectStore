@@ -9,12 +9,12 @@ namespace SimpleObjectStore.Services;
 public class BucketsService : IBucketsService
 {
     private readonly ApplicationDbContext _context;
-    private readonly StorageSlug _slug;
+    private readonly ISlug _slug;
     private readonly string _storagePath;
     private readonly ILogger<BucketsService> _logger;
     private string BucketPath(string directoryName) => Path.Combine(_storagePath, directoryName);
 
-    public BucketsService(ApplicationDbContext context, StorageSlug slug, ILogger<BucketsService> logger)
+    public BucketsService(ApplicationDbContext context, ISlug slug, ILogger<BucketsService> logger)
     {
         _context = context;
         _slug = slug;

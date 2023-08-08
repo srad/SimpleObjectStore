@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using SimpleObjectStore.Filters;
 using SimpleObjectStore.Models;
-using SimpleObjectStore.Services;
+using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Controllers;
 
@@ -13,9 +13,9 @@ namespace SimpleObjectStore.Controllers;
 public class BucketsController : ControllerBase
 {
     private readonly ILogger<BucketsController> _logger;
-    private readonly BucketsService _service;
+    private readonly IBucketsService _service;
 
-    public BucketsController(ILogger<BucketsController> logger, BucketsService service)
+    public BucketsController(ILogger<BucketsController> logger, IBucketsService service)
     {
         _logger = logger;
         _service = service;

@@ -16,7 +16,7 @@ internal static class DbInitializerExtension
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
             var service = services.GetRequiredService<ApiKeyService>();
-            var slug = services.GetRequiredService<StorageSlug>();
+            var slug = services.GetRequiredService<ISlug>();
             DbInitializer.Initialize(context, service, slug);
         }
         catch (Exception ex)
