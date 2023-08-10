@@ -1,6 +1,9 @@
 ﻿# SimpleObjectStore
 
- [![Build Status](https://teamcity.sedrad.com/app/rest/builds/buildType:(id:SimpleObjectStore_Build)/statusIcon)](https://teamcity.sedrad.com/viewType.html?buildTypeId=SimpleObjectStore_Build&guest=1)
+| Architecture  | Build status | Docker images
+| ------------- | ------------- |---------------|
+| AMD64  | [![Build Status](https://teamcity.sedrad.com/app/rest/builds/buildType:(id:SimpleObjectStore_Build)/statusIcon)](https://teamcity.sedrad.com/viewType.html?buildTypeId=SimpleObjectStore_Build&guest=1)  | [`sedrad/simpleobjectstore`](https://hub.docker.com/repository/docker/sedrad/simpleobjectstore/general) <br/>[`sedrad/simpleobjectstore-admin`](https://hub.docker.com/repository/docker/sedrad/simpleobjectstore-admin/general) |
+| ARM64v8  | [![Build Status](https://teamcity.sedrad.com/app/rest/builds/buildType:(id:SimpleObjectStore_BuildArm)/statusIcon)](https://teamcity.sedrad.com/viewType.html?buildTypeId=SimpleObjectStore_BuildArm&guest=1)  | [`sedrad/simpleobjectstore:latest-arm64v8`](https://hub.docker.com/repository/docker/sedrad/simpleobjectstore/general) <br/>[`sedrad/simpleobjectstore-admin:latest-arm64v8`](https://hub.docker.com/repository/docker/sedrad/simpleobjectstore-admin/general) |
 
 SimpleObjectStore is a simple alternative Amazon S3. Is based on a server with REST API and includes an admin interface.
 In order to use it you must provide and OpenID authenticator, like Keycloak.
