@@ -4,7 +4,7 @@ services:
 
   simple-object-store:
     container_name: simple-object-store
-    image: sedrad/simpleobjectstore
+    image: sedrad/simpleobjectstore:latest
     #build:
     #  context: ./SimpleObjectStore
     #  dockerfile: Dockerfile
@@ -15,7 +15,7 @@ services:
 
   simple-object-store-ui:
     container_name: simple-object-store-ui
-    image: sedrad/simpleobjectstore-admin
+    image: sedrad/simpleobjectstore-admin:latest
     volumes:
       - ./keys:/root/.aspnet/DataProtection-Keys
     #build:

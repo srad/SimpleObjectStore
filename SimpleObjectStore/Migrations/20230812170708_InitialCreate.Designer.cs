@@ -11,7 +11,7 @@ using SimpleObjectStore.Models;
 namespace SimpleObjectStore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230804231858_InitialCreate")]
+    [Migration("20230812170708_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

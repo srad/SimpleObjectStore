@@ -3,16 +3,19 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-preview AS build
+
+ARG TARGETARCH
+
 WORKDIR /src
 COPY ["SimpleObjectStore.Admin.csproj", "SimpleObjectStore.Admin/"]
-RUN dotnet restore "SimpleObjectStore.Admin/SimpleObjectStore.Admin.csproj"
+RUN dotnet restore "SimpleObjectStore.Admin/SimpleObjectStore.Admin.csproj" -a $TARGETARCH
 WORKDIR "/src/SimpleObjectStore.Admin"
 COPY . .
-RUN dotnet build "SimpleObjectStore.Admin.csproj" -c Release -o /app/build
+RUN dotnet build "SimpleObjectStore.Admin.csproj" -c Release -o /app/build -a $TARGETARCH
 
 FROM build AS publish
-RUN dotnet publish "SimpleObjectStore.Admin.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "SimpleObjectStore.Admin.csproj" -c Release -o /app/publish /p:UseAppHost=false -a $TARGETARCH
 
 FROM base AS final
 WORKDIR /app
