@@ -9,7 +9,7 @@ services:
     #  context: ./SimpleObjectStore
     #  dockerfile: Dockerfile
     volumes:
-      - ./data:/data     
+      - ./data:/data
     ports:
       - '5000:80'
 
