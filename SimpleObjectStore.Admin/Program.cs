@@ -20,7 +20,7 @@ builder.Services.AddAuthentication(options =>
         options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
     })
-    .AddCookie("Cookies", options =>
+    .AddCookie(options =>
     {
         options.LoginPath = "/login";
         options.LogoutPath = "/logout";
@@ -29,7 +29,7 @@ builder.Services.AddAuthentication(options =>
         options.Cookie.SameSite = SameSiteMode.Strict;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     })
-    .AddOpenIdConnect("oidc", options =>
+    .AddOpenIdConnect(options =>
     {
         var authority = builder.Configuration["OpenId:Authority"];
         var clientId = builder.Configuration["OpenId:ClientId"];
@@ -41,7 +41,7 @@ builder.Services.AddAuthentication(options =>
 
         options.NonceCookie.SecurePolicy = CookieSecurePolicy.Always;
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.SignInScheme = "Cookies";
+        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         options.AccessDeniedPath = new PathString("/access-denied");
         options.Authority = authority;
         options.ClientId = clientId;
@@ -57,6 +57,13 @@ builder.Services.AddAuthentication(options =>
 
         options.Events = new OpenIdConnectEvents
         {
+            OnTokenValidated = context =>
+            {
+                var x = context.Principal.Claims;
+
+                return Task.CompletedTask;
+            },
+
             OnAuthenticationFailed = ctx =>
             {
                 ctx.Response.Redirect("/access-denied");
@@ -109,15 +116,12 @@ else
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseStatusCodePages(context =>
+app.UseStatusCodePages(async context =>
 {
     var response = context.HttpContext.Response;
 
-    if (response.StatusCode == (int)HttpStatusCode.Unauthorized ||
-        response.StatusCode == (int)HttpStatusCode.Forbidden)
-        response.Redirect("login?redirectUri=/");
-
-    return Task.CompletedTask;
+    if (response.StatusCode == (int)HttpStatusCode.Unauthorized || response.StatusCode == (int)HttpStatusCode.Forbidden)
+        response.Redirect("/login");
 });
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
