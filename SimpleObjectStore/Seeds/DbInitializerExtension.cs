@@ -1,6 +1,7 @@
 ﻿using SimpleObjectStore.Helpers.Interfaces;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Services;
+using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Seeds;
 
@@ -15,7 +16,7 @@ internal static class DbInitializerExtension
         try
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
-            var service = services.GetRequiredService<ApiKeyService>();
+            var service = services.GetRequiredService<IKeyService>();
             var slug = services.GetRequiredService<ISlug>();
             DbInitializer.Initialize(context, service, slug);
         }

@@ -2,12 +2,13 @@
 using SimpleObjectStore.Helpers.Interfaces;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Services;
+using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Seeds;
 
 internal static class DbInitializer
 {
-    internal static async void Initialize(ApplicationDbContext dbContext, ApiKeyService service, ISlug slug)
+    internal static async void Initialize(ApplicationDbContext dbContext, IKeyService service, ISlug slug)
     {
         ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
         //await dbContext.Database.EnsureCreatedAsync();
@@ -100,7 +101,7 @@ internal static class DbInitializer
         }
     }
 
-    private static async Task CreateApiKey(ApplicationDbContext dbContext, ApiKeyService service)
+    private static async Task CreateApiKey(ApplicationDbContext dbContext, IKeyService service)
     {
         if (await dbContext.ApiKeys.AnyAsync())
         {
@@ -109,7 +110,7 @@ internal static class DbInitializer
 
         var key = new ApiKey
         {
-            Key = service.GenerateApiKey(), Title = "Default key", CreatedAt = DateTimeOffset.UtcNow, AccessTimeLimited = false
+            Key = service.GenerateKey(), Title = "Default key", CreatedAt = DateTimeOffset.UtcNow, AccessTimeLimited = false
         };
         dbContext.ApiKeys.Add(key);
 

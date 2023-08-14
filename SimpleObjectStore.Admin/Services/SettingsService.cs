@@ -1,6 +1,15 @@
 ﻿namespace SimpleObjectStore.Admin.Services;
 
-public class SettingsService
+public interface ISettingsService
+{
+    string? GetEndpoint();
+    string? GetKey();
+    string? GetOpenIdAuthority();
+    string? GetOpenIdClientId();
+    string? GetOpenIdClientSecret();
+}
+
+public class SettingsService : ISettingsService
 {
     private readonly IConfiguration _configuration;
 
