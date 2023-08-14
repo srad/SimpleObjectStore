@@ -1,11 +1,13 @@
 ﻿@using SimpleObjectStore.Services.v1
 @using SimpleObjectStore.Admin.Components
 @using SimpleObjectStore.Admin.Extensions
+
 @inherits LayoutComponentBase
+
 @inject SimpleObjectStoreClient Client
 @inject IJSRuntime JsRuntime
-
-@attribute [Authorize(Roles = "objectstore")]
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 
 <PageTitle>Administration</PageTitle>
 
@@ -136,10 +138,26 @@
     private ICollection<AllowedHost>? AllowedHosts { get; set; }
 
     [CascadingParameter]
-    protected Task<AuthenticationState> AuthStat { get; set; }
+    protected bool IsAuthenticated { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        IsAuthenticated = user.Identity is not null && user.Identity.IsAuthenticated;
+
+        if (!IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        if (IsAuthenticated && !user.IsInRole("objectstore"))
+        {
+            NavigationManager.NavigateTo("/logout");
+            return;
+        }
+
         StorageInfo = await Client.StorageInfoAsync();
         ApiKeys = await Client.ApiKeysAllAsync();
         AllowedHosts = await Client.AllowedHostsAllAsync();
