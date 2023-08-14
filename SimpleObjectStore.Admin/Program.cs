@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-builder.Services.AddScoped<SettingsService>();
+builder.Services.AddScoped<ISettingsService, SettingsService>();
 
 builder.Services.AddAuthentication(options =>
     {

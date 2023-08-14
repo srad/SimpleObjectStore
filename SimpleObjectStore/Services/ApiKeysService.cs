@@ -7,12 +7,12 @@ namespace SimpleObjectStore.Services;
 public class ApiKeysService : IApiKeysService
 {
     private readonly ApplicationDbContext _context;
-    private readonly ApiKeyService _apiKeyService;
+    private readonly IKeyService _keyService;
 
-    public ApiKeysService(ApplicationDbContext context, ApiKeyService apiKeyService)
+    public ApiKeysService(ApplicationDbContext context, IKeyService keyService)
     {
         _context = context;
-        _apiKeyService = apiKeyService;
+        _keyService = keyService;
     }
     
     public async Task<IEnumerable<ApiKey>> ToListAsync() => await _context.ApiKeys.ToListAsync();
@@ -21,7 +21,7 @@ public class ApiKeysService : IApiKeysService
     {
         var key = new ApiKey
         {
-            Key = _apiKeyService.GenerateApiKey(), Title = title, CreatedAt = DateTimeOffset.UtcNow, AccessTimeLimited = false
+            Key = _keyService.GenerateKey(), Title = title, CreatedAt = DateTimeOffset.UtcNow, AccessTimeLimited = false
         };
 
         await _context.ApiKeys.AddAsync(key);

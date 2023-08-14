@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace SimpleObjectStore.Filters;
 
-public class ApiKeyAuthorizationFilter : IAuthorizationFilter
+public class ApiAuthorizationFilter : IAuthorizationFilter
 {
     private const string ApiKeyHeaderName = "X-API-Key";
 
     private readonly IApiKeyValidator _apiKeyValidator;
 
-    public ApiKeyAuthorizationFilter(IApiKeyValidator apiKeyValidator)
+    public ApiAuthorizationFilter(IApiKeyValidator apiKeyValidator)
     {
         _apiKeyValidator = apiKeyValidator;
     }

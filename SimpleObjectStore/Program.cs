@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
@@ -44,14 +45,15 @@ if (!Directory.Exists(storageDirectory))
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("DB_PATH")}"); });
-builder.Services.AddScoped<ApiKeyService>();
-builder.Services.AddScoped<ApiKeyAuthorizationFilter>();
+builder.Services.AddScoped<IApiKeysService, ApiKeysService>();
+builder.Services.AddScoped<IAuthorizationFilter, ApiAuthorizationFilter>();
 builder.Services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
 builder.Services.AddScoped<StorageNameValidator>();
 builder.Services.AddScoped<ISlug, StorageSlug>();
 builder.Services.AddScoped<IAllowedHostsService, AllowedHostsService>();
 builder.Services.AddScoped<IBucketsService, BucketsService>();
 builder.Services.AddScoped<IStorageService, StorageService>();
+builder.Services.AddScoped<IKeyService, KeyService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
