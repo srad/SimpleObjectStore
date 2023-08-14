@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using SimpleObjectStore.Helpers.Interfaces;
-using Slugify;
 
 namespace SimpleObjectStore.Helpers;
 
@@ -24,7 +23,7 @@ public class StorageSlug : ISlug
         //var slug = _slugHelper.GenerateSlug(input.Replace(".", "")).Trim('-');
         var slug = input.ToLowerInvariant().Replace(' ', '-');
         slug = new string(slug.ToCharArray()
-            .Where(c => char.IsAsciiLetterOrDigit(c) || c == '-').ToArray());
+            .Where(c => char.IsAsciiLetterOrDigit(c) || c == '-' || c == '.' || c == '_').ToArray());
         slug = _whiteSpace.Replace(slug, "-");
         slug = slug.Trim('-');
 

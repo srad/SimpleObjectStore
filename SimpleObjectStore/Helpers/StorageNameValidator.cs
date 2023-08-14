@@ -5,7 +5,7 @@ namespace SimpleObjectStore.Helpers;
 
 public class StorageNameValidator: IValidator<string>
 {
-    private readonly Regex _storageNamePattern = new("^[a-z0-9]+(-[a-z0-9]+)*$", RegexOptions.Compiled);
+    private static readonly Regex StorageNamePattern = new("^[_.a-z0-9]+(-[_.a-z0-9]+)*$", RegexOptions.Compiled);
 
-    public bool IsValid(string input) => _storageNamePattern.IsMatch(input);
+    public bool IsValid(string input) => StorageNamePattern.IsMatch(input);
 }
