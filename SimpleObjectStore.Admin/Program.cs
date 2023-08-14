@@ -57,13 +57,6 @@ builder.Services.AddAuthentication(options =>
 
         options.Events = new OpenIdConnectEvents
         {
-            OnTokenValidated = context =>
-            {
-                var x = context.Principal.Claims;
-
-                return Task.CompletedTask;
-            },
-
             OnAuthenticationFailed = ctx =>
             {
                 ctx.Response.Redirect("/access-denied");
