@@ -1,6 +1,7 @@
 ﻿@using SimpleObjectStore.Services.v1
 @using SimpleObjectStore.Admin.Components
 @using SimpleObjectStore.Admin.Extensions
+@using System.Security.Claims
 
 @inherits LayoutComponentBase
 
@@ -8,6 +9,7 @@
 @inject IJSRuntime JsRuntime
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject ILogger<MainLayout> Logger
 
 <PageTitle>Administration</PageTitle>
 
@@ -144,7 +146,7 @@
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        IsAuthenticated = user.Identity is not null && user.Identity.IsAuthenticated;
+        IsAuthenticated = user.Identity != null && user.Identity.IsAuthenticated;
 
         if (!IsAuthenticated)
         {
@@ -154,6 +156,7 @@
 
         if (IsAuthenticated && !user.IsInRole("objectstore"))
         {
+            Logger.LogWarning("User \'{FindFirstValue}\' has not the role \'objectstore\'", authState.User.FindFirstValue(ClaimTypes.Email));
             NavigationManager.NavigateTo("/logout");
             return;
         }
