@@ -13,6 +13,9 @@ RUN dotnet restore "SimpleObjectStore.Admin/SimpleObjectStore.Admin.csproj" -a $
 WORKDIR "/src/SimpleObjectStore.Admin"
 COPY . .
 
+RUN apt update
+RUN apt install nodejs -y
+
 RUN chmod +x clone.sh
 RUN ./clone.sh
 
