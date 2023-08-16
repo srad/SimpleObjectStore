@@ -269,3 +269,10 @@ SimpleObjectStore.Admin/appsettings.Development.json
 keys
 Resources/bin
 .env
+
+SimpleObjectStore.Admin/wwwroot/src/scss/lib/**
+!SimpleObjectStore.Admin/wwwroot/src/scss/lib/empty
+SimpleObjectStore.Admin/wwwroot/fonts/**
+SimpleObjectStore.Admin/node_modules
+SimpleObjectStore.Admin/wwwroot/js
+SimpleObjectStore.Admin/wwwroot/css

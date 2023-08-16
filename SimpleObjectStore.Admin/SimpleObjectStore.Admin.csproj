@@ -7,27 +7,50 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Services\v1\" />
+        <Folder Include="Services\v1\" />
+        <Folder Include="wwwroot\css\" />
+        <Folder Include="wwwroot\img\" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.10" />
-      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.10" />
-      <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.1" />
-      <PackageReference Include="Microsoft.OpenApi" Version="1.6.6" />
-      <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.19.0" />
+        <PackageReference Include="AspNetCore.SassCompiler" Version="1.64.2" />
+        <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.1.5">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
-      <Content Update="appsettings.Development.json.default">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.10" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.32.1" />
+        <PackageReference Include="Microsoft.OpenApi" Version="1.6.6" />
+        <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.19.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SimpleObjectStore\SimpleObjectStore.csproj" />
+        <Content Update="appsettings.Development.json.default">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="clone.bat">
+          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+          <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
+        <Content Update="clone.sh">
+          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+          <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </Content>
     </ItemGroup>
 
+    <Target Name="CopyFiles" AfterTargets="Compile">
+        <ItemGroup>
+            <FontFiles Include=".\wwwroot\src\scss\lib\icons\font\fonts\**" />
+            <BootstrapJs Include=".\wwwroot\src\scss\lib\bootstrap\dist\js\**" />
+        </ItemGroup>
+
+        <Copy SourceFiles="@(FontFiles)" DestinationFolder=".\wwwroot\fonts\%(RecursiveDir)" />
+        <Copy SourceFiles="@(BootstrapJs)" DestinationFolder=".\wwwroot\js\bootstrap\%(RecursiveDir)" />
+    </Target>
 </Project>

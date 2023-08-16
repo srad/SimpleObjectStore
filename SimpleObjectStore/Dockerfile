@@ -19,9 +19,11 @@ RUN dotnet publish "SimpleObjectStore.csproj" -c Release -o /app/publish /p:UseA
 
 FROM base AS final
 WORKDIR /app
+
 ENV STORAGE_DIRECTORY=/data/storage
 ENV DB_PATH=/data/data.db
 RUN mkdir -p $STORAGE_DIRECTORY
 CMD /bin/sh -c "echo Storing file in: $STORAGE_DIRECTORY. Storing data in: $DB_PATH"
+
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "SimpleObjectStore.dll"]

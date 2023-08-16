@@ -1,0 +1,20 @@
+﻿{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "System",
+    "target": "es5",
+    "declaration": false,
+    "removeComments": true,
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "sourceMap": true,
+    "outDir": "wwwroot/js",
+    "outFile": "wwwroot/js/main.js"
+  },
+  "include": [
+    "wwwroot/src/ts/**/*"
+  ],
+  "exclude": [
+    "**/*.spec.ts"
+  ]
+}

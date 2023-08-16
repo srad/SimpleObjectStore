@@ -10,9 +10,10 @@
 @inject ISettingsService SettingsService
 @inject IJSRuntime JsRuntime
 @inject ILogger<Detail> Logger;
+@inject NavigationManager NavigationManager
 
 <LoadIndicator Loaded="Bucket != null" LoadMessage="Loading...">
-    <div class="d-flex justify-content-between flex-row">
+    <div class="d-flex justify-content-between flex-row border-bottom mb-1">
         <div class="flex-column">
             <h3>@Bucket!.Name</h3>
         </div>
@@ -21,9 +22,9 @@
         </div>
     </div>
 
-    <div class="d-flex flex-row align-items-center pb-2 my-1">
-        <form class="p-1 py-2 flex-column">
-            <button class="btn btn-primary rounded-1" type="button" disabled="@IsUploading" onclick="@(async () => await JsRuntime.InvokeVoidAsync("clickElement", "files"))">
+    <div class="d-flex flex-row align-items-center justify-content-between my-1 justify-content-center">
+        <form class="py-2 flex-column">
+            <button class="btn btn-primary" type="button" disabled="@IsUploading" onclick="@(async () => await JsRuntime.InvokeVoidAsync("clickElement", "files"))">
                 @if (IsUploading)
                 {
                     <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
@@ -31,15 +32,25 @@
                 }
                 else
                 {
-                    <span role="status">Upload files</span>
+                    <span role="status">
+                        <i class="bi bi-upload mx-1"></i>
+                        Upload files
+                    </span>
                 }
             </button>
             <InputFile id="files" nu hidden class="p-0 m-0" multiple OnChange="UploadFile"/>
             @if (ShowDeleteButton)
             {
-                <button class="btn btn-danger" onclick="@(DeleteSelectionAsync)">Delete selection</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteSelectionAsync">Delete selection</button>
             }
         </form>
+
+        <div>
+            <button type="button" class="btn btn-sm btn-danger" @onclick="DeleteBucketAsync">
+                <span class="me-1">Delete Bucket</span>
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
     </div>
 
     @if (Messages.Length > 0)
@@ -49,57 +60,55 @@
         </div>
     }
 
-    <table class="table table-bordered table-hover">
-        <thead class="bg-light">
-        <th style="width: 3%" class="text-center p-2 border">
-            <InputCheckbox @bind-Value="AllChecked" @bind-Value:after="@(SelectAll)"/>
-        </th>
-        <th class="p-2 border">Filename</th>
-        <th class="p-2 border">Url</th>
-        <th class="p-2 border">Access Count</th>
-        <th class="p-2 border">Size</th>
-        <th class="p-2 border">Last Access</th>
-        <th class="p-2 border">Created at</th>
-        <th class="p-2 border">Private</th>
-        <th class="text-center p-2 border" style="width: 5%">
-            Delete
-        </th>
-        </thead>
-        <tbody>
-        @foreach (var file in Bucket.Files)
-        {
-            <tr class="@(file.Selected || AllChecked ? "bg-selected" : "")">
-                <td class="text-center">
-                    <input type="checkbox" checked="@file.Selected" onclick="@(() => Select(file.StorageFileId))"/>
-                </td>
-                <td class="py-1 align-middle">
-                    @file.FileName
-                </td>
-                <td class="py-1 align-middle overflow-hidden">
-                    <a target="_blank" href="@file.FileUrl">@file.FileUrl</a>
-                </td>
-                <td class="py-1 align-middle">@file.AccessCount</td>
-                <td class="py-1 align-middle">@file.FileSizeMB MB</td>
-                <td class="py-1 align-middle">@file.LastAccess</td>
-                <td class="py-1 align-middle">@file.CreatedAt</td>
-                <td class="py-1 align-middle">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" onchange="@(() => ChangeVisibility(file))" role="switch" checked="@file.Private">
-                    </div>
-                </td>
-                <td class="text-center py-1 align-middle">
-                    <button class="btn btn-sm btn-outline-danger" type="button" onclick="@(() => DeleteAsync(file.StorageFileId, file.FileName))">Delete</button>
-                </td>
-            </tr>
-        }
-        @if (!Bucket.Files.Any())
-        {
-            <tr>
-                <td colspan="8">Empty</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="border border-dark-subtle">
+        <table class="table table-bordered table-hover table-sm m-0">
+            <thead class="bg-light align-middle">
+            <th style="width: 3%" class="text-center p-2 border">
+                <InputCheckbox @bind-Value="AllChecked" @bind-Value:after="@(SelectAll)"/>
+            </th>
+            <th class="p-2 border">Filename</th>
+            <th class="p-2 border">Access Count</th>
+            <th class="p-2 border">Size</th>
+            <th class="p-2 border">Last Access</th>
+            <th class="p-2 border">Created at</th>
+            <th class="p-2 border">Private</th>
+            <th class="text-center p-2 border" style="width: 5%">
+                Delete
+            </th>
+            </thead>
+            <tbody>
+            @foreach (var file in Bucket.Files)
+            {
+                <tr class="align-middle @(file.Selected || AllChecked ? "bg-selected" : "")">
+                    <td class="text-center">
+                        <input type="checkbox" checked="@file.Selected" onclick="@(() => Select(file.StorageFileId))"/>
+                    </td>
+                    <td class="py-1 align-middle">
+                        <a href="@file.FileUrl" target="_blank">@file.FileName</a>
+                    </td>
+                    <td class="py-1 align-middle px-2">@file.AccessCount</td>
+                    <td class="py-1 align-middle px-2">@file.FileSizeMB MB</td>
+                    <td class="py-1 align-middle px-2">@file.LastAccess</td>
+                    <td class="py-1 align-middle px-2">@file.CreatedAt</td>
+                    <td class="py-1 align-middle px-2">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" onchange="@(() => ChangeVisibility(file))" role="switch" checked="@file.Private">
+                        </div>
+                    </td>
+                    <td class="text-center py-1 align-middle">
+                        <button class="btn btn-sm btn-outline-danger" type="button" onclick="@(() => DeleteAsync(file.StorageFileId, file.FileName))">Delete</button>
+                    </td>
+                </tr>
+            }
+            @if (!Bucket.Files.Any())
+            {
+                <tr>
+                    <td colspan="8">Empty</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 </LoadIndicator>
 
 <style>
@@ -117,6 +126,7 @@
     private bool IsUploading { get; set; }
     private bool AllChecked { get; set; }
     private bool ShowDeleteButton => AllChecked || (Bucket != null && Bucket.Files.Any(x => x.Selected));
+    private bool Loaded { get; set; }
 
         private const int MaxFileSize = 1024 * 1024 * 1024;
         private const int MaxFileCount = 1000;
@@ -127,6 +137,7 @@
     protected override async Task OnInitializedAsync()
     {
         await GetData();
+        Loaded = true;
     }
 
     private async Task GetData()
@@ -160,7 +171,14 @@
         }
         catch (Exception ex)
         {
-            Messages.AppendLine(ex.Message);
+            if (!Loaded)
+            {
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                Messages.AppendLine(ex.Message);
+            }
         }
     }
 
@@ -267,12 +285,13 @@
 
     private async Task DeleteSelectionAsync()
     {
-        if (!await JsRuntime.InvokeAsync<bool>("confirm", "Delete selection?"))
+        var selected = Bucket!.Files.FindAll(x => x.Selected);
+
+        if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Delete selection {selected.Count} selected items?"))
         {
             return;
         }
 
-        var selected = Bucket!.Files.FindAll(x => x.Selected);
         var ids = selected.Select(y => y.StorageFileId);
 
         foreach (var file in selected)
@@ -301,6 +320,16 @@
             await Client.PrivateAsync(view.StorageFileId);
         }
         view.Private = !view.Private;
+    }
+
+    private async Task DeleteBucketAsync()
+    {
+        if (await JsRuntime.InvokeAsync<bool>("confirm", $"Delete bucket '{Bucket!.Name}'?"))
+        {
+            await Client.BucketsDELETEAsync(BucketId);
+            await InvokeAsync(StateHasChanged);
+            NavigationManager.NavigateTo("/");
+        }
     }
 
 }
