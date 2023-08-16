@@ -13,6 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
+#if DEBUG
+builder.Services.AddSassCompiler();
+#endif
+
 builder.Services.AddScoped<ISettingsService, SettingsService>();
 
 builder.Services.AddAuthentication(options =>

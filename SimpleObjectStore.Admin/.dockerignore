@@ -25,3 +25,7 @@ LICENSE
 README.md
 *.bat
 appsettings.Development.json
+wwwroot/src/scss/lib
+node_modules
+wwwroot/css
+wwwroot/js

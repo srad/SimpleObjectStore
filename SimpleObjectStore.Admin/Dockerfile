@@ -12,6 +12,10 @@ COPY ["SimpleObjectStore.Admin.csproj", "SimpleObjectStore.Admin/"]
 RUN dotnet restore "SimpleObjectStore.Admin/SimpleObjectStore.Admin.csproj" -a $TARGETARCH
 WORKDIR "/src/SimpleObjectStore.Admin"
 COPY . .
+
+RUN chmod +x clone.sh
+RUN ./clone.sh
+
 RUN dotnet build "SimpleObjectStore.Admin.csproj" -c Release -o /app/build -a $TARGETARCH
 
 FROM build AS publish

@@ -1,3 +1,3 @@
-﻿function clickElement(id) {
+﻿function clickElement(id: string) {
     document.getElementById(id).click();
 }

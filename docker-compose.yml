@@ -4,10 +4,10 @@ services:
 
   simple-object-store:
     container_name: simple-object-store
-    image: sedrad/simpleobjectstore:latest
-    #build:
-    #  context: ./SimpleObjectStore
-    #  dockerfile: Dockerfile
+    #image: sedrad/simpleobjectstore:latest
+    build:
+      context: ./SimpleObjectStore
+      dockerfile: Dockerfile
     volumes:
       - ./data:/data
     ports:
@@ -15,12 +15,12 @@ services:
 
   simple-object-store-ui:
     container_name: simple-object-store-ui
-    image: sedrad/simpleobjectstore-admin:latest
+    #image: sedrad/simpleobjectstore-admin:latest
     volumes:
       - ./keys:/root/.aspnet/DataProtection-Keys
-    #build:
-    #  context: ./SimpleObjectStore.Admin
-    #  dockerfile: Dockerfile
+    build:
+      context: ./SimpleObjectStore.Admin
+      dockerfile: Dockerfile
     environment:
       - API__Endpoint=${API_ENDPOINT}
       - API__Key=${API_KEY}

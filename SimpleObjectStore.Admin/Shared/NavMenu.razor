@@ -13,26 +13,28 @@
 </div>
 -->
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column px-3">
-        <div class="nav-item">
-            <NavLink class="nav-link bg-primary px-3" @onclick="AddBucket">
-                <span style="cursor: pointer">Add Bucket</span>
-            </NavLink>
-        </div>
+<div class="@NavMenuCssClass nav-scrollable p-2" @onclick="ToggleNavMenu">
+    <button type="button" class="btn btn-primary p-2 mb-2 w-100" @onclick="AddBucket">
+        <span style="cursor: pointer">
+            <i class="bi bi-bucket-fill"></i>
+            Add Bucket
+        </span>
+    </button>
+
+    <div class="list-group">
         @if (Buckets != null)
         {
             @foreach (var bucket in Buckets)
             {
-                <div class="nav-item">
-                    <NavLink class="nav-link d-flex justify-content-between ps-2 pe-0" href="@($"bucket/{bucket.BucketId}")">
-                        <span>@bucket.Name (@bucket.Size)</span>
-                        <span class="oi oi-trash" onclick="@(() => DeleteAsync(bucket.BucketId, bucket.Name))"></span>
-                    </NavLink>
-                </div>
+                <NavLink class="list-group-item list-group-item-action p-2" ActiveClass="bg-secondary-subtle" href="@($"bucket/{bucket.BucketId}")">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <span>@bucket.Name</span>
+                        <span class="badge bg-info rounded-pill d-flex align-items-center">@bucket.Size</span>
+                    </div>
+                </NavLink>
             }
         }
-    </nav>
+    </div>
 </div>
 
 @code {
@@ -70,18 +72,7 @@
             await JsRuntime.InvokeVoidAsync("alert", e.Message);
         }
     }
-
-    private async Task DeleteAsync(string bucketId, string bucketName)
-    {
-        if (await JsRuntime.InvokeAsync<bool>("confirm", $"Delete bucket '{bucketName}'?"))
-        {
-            await Client.BucketsDELETEAsync(bucketId);
-            Buckets.Remove(Buckets.First(x => x.BucketId == bucketId));
-            await InvokeAsync(StateHasChanged);
-            NavigationManager.NavigateTo("/");
-        }
-    }
-
+    
     protected override async Task OnParametersSetAsync()
     {
         await InvokeAsync(StateHasChanged);
