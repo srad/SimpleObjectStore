@@ -29,7 +29,7 @@ public class StorageSlug : ISlug
 
         if (string.IsNullOrWhiteSpace(slug))
         {
-            throw new Exception("Input leads to empty slug");
+            throw new ArgumentException("Input leads to empty slug");
         }
 
         if (_validator.IsValid(slug))
@@ -37,6 +37,6 @@ public class StorageSlug : ISlug
             return slug;
         }
 
-        throw new Exception($"Invalid storage name: '{slug}'");
+        throw new ArgumentException($"Invalid storage name: '{slug}'");
     }
 }
