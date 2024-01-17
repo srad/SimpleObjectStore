@@ -10,30 +10,21 @@ namespace SimpleObjectStore.Controllers;
 [ApiController]
 [Produces("application/json")]
 [ApiKey]
-public class BucketsController : ControllerBase
+public class BucketsController(ILogger<BucketsController> logger, IBucketsService service) : ControllerBase
 {
-    private readonly ILogger<BucketsController> _logger;
-    private readonly IBucketsService _service;
-
-    public BucketsController(ILogger<BucketsController> logger, IBucketsService service)
-    {
-        _logger = logger;
-        _service = service;
-    }
-
     [HttpGet, OutputCache]
-    public async Task<IEnumerable<Bucket>> GetAsync() => await _service.ToListAsync();
+    public async Task<IEnumerable<Bucket>> GetAsync() => await service.ToListAsync();
 
     [HttpGet($"{{{nameof(name)}}}/name"), OutputCache]
     public async Task<ActionResult<Bucket>> GetByNameAsync(string name)
     {
         try
         {
-            return Ok(await _service.FindByNameAsync(name));
+            return Ok(await service.FindByNameAsync(name));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -43,11 +34,11 @@ public class BucketsController : ControllerBase
     {
         try
         {
-            return Ok(await _service.FindById(id));
+            return Ok(await service.FindById(id));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -57,11 +48,11 @@ public class BucketsController : ControllerBase
     {
         try
         {
-            return Ok(await _service.ExistsAsync(name));
+            return Ok(await service.ExistsAsync(name));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -71,11 +62,11 @@ public class BucketsController : ControllerBase
     {
         try
         {
-            return Ok(await _service.CreateAsync(name));
+            return Ok(await service.CreateAsync(name));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -85,12 +76,12 @@ public class BucketsController : ControllerBase
     {
         try
         {
-            await _service.DeleteAsync(id);
+            await service.DeleteAsync(id);
             return Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }

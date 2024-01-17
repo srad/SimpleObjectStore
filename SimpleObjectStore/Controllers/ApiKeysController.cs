@@ -9,27 +9,18 @@ namespace SimpleObjectStore.Controllers;
 [ApiController]
 [Produces("application/json")]
 [ApiKey]
-public class ApiKeysController : ControllerBase
+public class ApiKeysController(ILogger<ApiKeysController> logger, IApiKeysService service) : ControllerBase
 {
-    private readonly ILogger<ApiKeysController> _logger;
-    private readonly IApiKeysService _service;
-
-    public ApiKeysController(ILogger<ApiKeysController> logger, IApiKeysService service)
-    {
-        _logger = logger;
-        _service = service;
-    }
-
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ApiKey>>> GetKeysAsync()
     {
         try
         {
-            return Ok(await _service.ToListAsync());
+            return Ok(await service.ToListAsync());
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -39,12 +30,12 @@ public class ApiKeysController : ControllerBase
     {
         try
         {
-            await _service.DeleteAsync(key);
+            await service.DeleteAsync(key);
             return Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -54,11 +45,11 @@ public class ApiKeysController : ControllerBase
     {
         try
         {
-            return Ok(await _service.CreateAsync(title));
+            return Ok(await service.CreateAsync(title));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }

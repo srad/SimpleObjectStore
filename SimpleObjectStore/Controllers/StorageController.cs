@@ -11,27 +11,18 @@ namespace SimpleObjectStore.Controllers;
 [ApiController]
 [Produces("application/json")]
 [ApiKey]
-public class StorageController : ControllerBase
+public class StorageController(ILogger<StorageController> logger, IStorageService service) : ControllerBase
 {
-    private readonly ILogger<StorageController> _logger;
-    private readonly IStorageService _service;
-
-    public StorageController(ILogger<StorageController> logger, IStorageService service)
-    {
-        _logger = logger;
-        _service = service;
-    }
-
     [HttpGet, OutputCache]
     public async Task<ActionResult<IEnumerable<BucketFile>>> GetFiles()
     {
         try
         {
-            return Ok(await _service.ToListAsync());
+            return Ok(await service.ToListAsync());
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -41,11 +32,11 @@ public class StorageController : ControllerBase
     {
         try
         {
-            return Ok(await _service.FindByIdAsync(id));
+            return Ok(await service.FindByIdAsync(id));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -55,11 +46,11 @@ public class StorageController : ControllerBase
     {
         try
         {
-            return Ok(await _service.ExistsAsync(bucketId, fileName));
+            return Ok(await service.ExistsAsync(bucketId, fileName));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -69,11 +60,11 @@ public class StorageController : ControllerBase
     {
         try
         {
-            return Ok(await _service.SaveAsync(bucketId, files));
+            return Ok(await service.SaveAsync(bucketId, files));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -83,12 +74,12 @@ public class StorageController : ControllerBase
     {
         try
         {
-            await _service.DeleteAsync(id);
+            await service.DeleteAsync(id);
             return Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -98,12 +89,12 @@ public class StorageController : ControllerBase
     {
         try
         {
-            await _service.PrivateAsync(id);
+            await service.PrivateAsync(id);
             return Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -113,12 +104,12 @@ public class StorageController : ControllerBase
     {
         try
         {
-            await _service.PublicAsync(id);
+            await service.PublicAsync(id);
             return Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -128,11 +119,11 @@ public class StorageController : ControllerBase
     {
         try
         {
-            return Ok(_service.GetStorageStatsAsync());
+            return Ok(service.GetStorageStatsAsync());
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
