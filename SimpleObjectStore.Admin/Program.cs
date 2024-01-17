@@ -51,7 +51,7 @@ builder.Services.AddAuthentication(options =>
         options.ClientId = clientId;
         options.ClientSecret = clientSecret;
         options.ResponseType = "code";
-        options.SaveTokens = true;
+        options.SaveTokens = false;
         options.GetClaimsFromUserInfoEndpoint = true;
         options.UseTokenLifetime = false;
         options.RequireHttpsMetadata = builder.Environment.IsProduction() && !(builder.Configuration["DisableHttpsMetadata"] != null && builder.Configuration["DisableHttpsMetadata"] == "true");
