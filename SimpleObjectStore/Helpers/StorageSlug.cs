@@ -3,15 +3,10 @@ using SimpleObjectStore.Helpers.Interfaces;
 
 namespace SimpleObjectStore.Helpers;
 
-public class StorageSlug : ISlug
+public class StorageSlug(StorageNameValidator validator) : ISlug
 {
     private readonly Regex _whiteSpace = new(@"-+", RegexOptions.Compiled);
-    private readonly IValidator<string> _validator;
-
-    public StorageSlug(StorageNameValidator validator)
-    {
-        _validator = validator;
-    }
+    private readonly IValidator<string> _validator = validator;
 
     public string Generate(string input)
     {

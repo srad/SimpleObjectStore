@@ -9,31 +9,22 @@ namespace SimpleObjectStore.Controllers;
 [ApiController]
 [Produces("application/json")]
 [ApiKey]
-public class AllowedHostsController : ControllerBase
+public class AllowedHostsController(IAllowedHostsService service, ILogger<AllowedHostsController> logger) : ControllerBase
 {
-    private readonly IAllowedHostsService _service;
-    private readonly ILogger<AllowedHostsController> _logger;
-
-    public AllowedHostsController(IAllowedHostsService service, ILogger<AllowedHostsController> logger)
-    {
-        _service = service;
-        _logger = logger;
-    }
-
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AllowedHost>>> GetAsync() => Ok(await _service.ToListAsync());
+    public async Task<ActionResult<IEnumerable<AllowedHost>>> GetAsync() => Ok(await service.ToListAsync());
 
     [HttpDelete($"{{{nameof(host)}}}")]
     public async Task<IActionResult> DeleteAsync(string host)
     {
         try
         {
-            await _service.DeleteAsync(host);
+            await service.DeleteAsync(host);
             return Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
@@ -48,11 +39,11 @@ public class AllowedHostsController : ControllerBase
     {
         try
         {
-            return Ok(await _service.CreateAsync(host));
+            return Ok(await service.CreateAsync(host));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            logger.LogError(ex.Message);
             return BadRequest(ex.Message);
         }
     }
