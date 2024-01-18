@@ -1,15 +1,19 @@
 ﻿# SimpleObjectStore
 
-| Architecture  | Build status | Docker images |
-| ------------- | ------------- | ------------- |
-| `linux/amd64`<br/>`linux/arm64`  | [![Build Status](https://teamcity.sedrad.com/app/rest/builds/buildType:(id:SimpleObjectStore_Build)/statusIcon)](https://teamcity.sedrad.com/viewType.html?buildTypeId=SimpleObjectStore_Build&guest=1) | [`sedrad/simpleobjectstore`](https://hub.docker.com/repository/docker/sedrad/simpleobjectstore/general) <img src="https://img.shields.io/docker/pulls/sedrad/simpleobjectstore"/> <br/>[`sedrad/simpleobjectstore-admin`](https://hub.docker.com/repository/docker/sedrad/simpleobjectstore-admin/general) <img src="https://img.shields.io/docker/pulls/sedrad/simpleobjectstore-admin"/> |
+[![Build Status](https://teamcity.sedrad.com/app/rest/builds/buildType:(id:SimpleObjectStore_Build)/statusIcon)](https://teamcity.sedrad.com/viewType.html?buildTypeId=SimpleObjectStore_Build&guest=1)
+
+| Docker images | Pulls |
+| ------------- | ----- |
+| [`sedrad/simpleobjectstore`](https://hub.docker.com/repository/docker/sedrad/simpleobjectstore/general) | <img src="https://img.shields.io/docker/pulls/sedrad/simpleobjectstore"/>
+| [`sedrad/simpleobjectstore-admin`](https://hub.docker.com/repository/docker/sedrad/simpleobjectstore-admin/general) | <img src="https://img.shields.io/docker/pulls/sedrad/simpleobjectstore-admin"/> |
 
 SimpleObjectStore is a simple alternative Amazon S3. Is based on a server with REST API and includes an admin interface.
 In order to use it you must provide and OpenID authenticator, like Keycloak.
 
 You can either use the admin interface to manage your buckets or use the API (as the admin UI does itself).
 
-https://github.com/srad/SimpleObjectStore/assets/1612461/0cfd755b-c351-434e-8272-6624c4333006
+| ![demo](https://github.com/srad/SimpleObjectStore/assets/1612461/3f7653ac-aa33-48aa-8853-252801a765cc) |
+|-|
 
 # API
 
