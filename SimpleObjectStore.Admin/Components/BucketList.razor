@@ -1,19 +1,9 @@
 ﻿@using SimpleObjectStore.Services.v1
 @inject SimpleObjectStoreClient Client
 @inject IJSRuntime JsRuntime
-@inject NavigationManager NavigationManager
-<!--
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Administration</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
--->
+@inject NavigationManager Navigation
 
-<div class="@NavMenuCssClass nav-scrollable p-2" @onclick="ToggleNavMenu">
+<div class="nav-scrollable p-2">
     <button type="button" class="btn btn-primary p-2 mb-2 w-100" @onclick="AddBucket">
         <span style="cursor: pointer">
             <i class="bi bi-bucket-fill"></i>
@@ -38,21 +28,10 @@
 </div>
 
 @code {
-    private bool CollapseNavMenu { get; set; } = true;
-    private ICollection<Bucket>? Buckets { get; set; }
+    [Parameter]
+    public ICollection<Bucket>? Buckets { get; set; }
+    
     private DriveInfo? DriveInfo { get; set; }
-
-    private string? NavMenuCssClass => CollapseNavMenu ? "collapse" : null;
-
-    protected override async Task OnInitializedAsync()
-    {
-        Buckets = await Client.BucketsAllAsync();
-    }
-
-    private void ToggleNavMenu()
-    {
-        CollapseNavMenu = !CollapseNavMenu;
-    }
 
     private async Task AddBucket()
     {
@@ -66,6 +45,8 @@
 
             var newBucket = await Client.BucketsPOSTAsync(name);
             Buckets?.Add(newBucket);
+            await InvokeAsync(StateHasChanged);
+            Navigation.NavigateTo("/bucket/" + newBucket.BucketId);
         }
         catch (Exception e)
         {
@@ -73,9 +54,4 @@
         }
     }
     
-    protected override async Task OnParametersSetAsync()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-
 }

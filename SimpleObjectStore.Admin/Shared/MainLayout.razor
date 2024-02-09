@@ -1,15 +1,14 @@
 ﻿@using SimpleObjectStore.Services.v1
-@using SimpleObjectStore.Admin.Components
 @using SimpleObjectStore.Admin.Extensions
-@using System.Security.Claims
 
 @inherits LayoutComponentBase
 
 @inject SimpleObjectStoreClient Client
 @inject IJSRuntime JsRuntime
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
-@inject ILogger<MainLayout> Logger
+@inject PersistentComponentState ApplicationState
+
+@implements IDisposable
 
 <PageTitle>Administration</PageTitle>
 
@@ -45,7 +44,8 @@
                 </form>
                 -->
 
-                <LoadIndicator Loaded="AllowedHosts != null">
+                @if (AllowedHosts != null)
+                {
                     <div class="dropdown me-1 d-none d-sm-block">
                         <button class="btn btn-sm text-dark text-decoration-none btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Allowed Hosts
@@ -72,9 +72,10 @@
                             </li>
                         </ul>
                     </div>
-                </LoadIndicator>
+                }
 
-                <LoadIndicator Loaded="ApiKeys != null">
+                @if (ApiKeys != null)
+                {
                     <div class="dropdown me-1 d-none d-sm-block">
                         <button class="btn btn-sm text-dark text-decoration-none btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             API Keys
@@ -105,7 +106,7 @@
                             </li>
                         </ul>
                     </div>
-                </LoadIndicator>
+                }
                 <NavLink class="btn btn-sm btn-primary d-none d-sm-inline" href="logout">Logout</NavLink>
             </div>
         </div>
@@ -114,7 +115,7 @@
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu/>
+        <BucketList Buckets="Buckets"/>
     </div>
 
     <main>
@@ -124,43 +125,67 @@
     </main>
 </div>
 
-<style>
-    .dropdown-menu-right {
-       right: 0 !important;
-       left: auto !important;
-    }
-</style>
-
 @code{
+    private PersistingComponentStateSubscription persistingSubscription;
     private StorageStats? StorageInfo { get; set; }
     private ICollection<ApiKey>? ApiKeys { get; set; }
     private ICollection<AllowedHost>? AllowedHosts { get; set; }
-
-    [CascadingParameter]
-    protected bool IsAuthenticated { get; set; }
+    public ICollection<Bucket>? Buckets { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        IsAuthenticated = user.Identity != null && user.Identity.IsAuthenticated;
-
-        if (!IsAuthenticated)
+        persistingSubscription = ApplicationState.RegisterOnPersisting(() =>
         {
-            NavigationManager.NavigateTo("/login");
-            return;
+            ApplicationState.PersistAsJson(nameof(StorageInfo), StorageInfo);
+            ApplicationState.PersistAsJson(nameof(ApiKeys), ApiKeys);
+            ApplicationState.PersistAsJson(nameof(AllowedHosts), AllowedHosts);
+            ApplicationState.PersistAsJson(nameof(Buckets), Buckets);
+            return Task.CompletedTask;
+        });
+
+        if (ApplicationState.TryTakeFromJson<StorageStats?>(nameof(StorageInfo), out var storedStorageInfo))
+        {
+            StorageInfo = storedStorageInfo;
+        }
+        else
+        {
+            StorageInfo = await Client.StorageInfoAsync();
         }
 
-        if (IsAuthenticated && !user.IsInRole("objectstore"))
+        if (ApplicationState.TryTakeFromJson<ICollection<ApiKey>?>(nameof(ApiKeys), out var storedApiKeys))
         {
-            Logger.LogWarning("User \'{FindFirstValue}\' has not the role \'objectstore\'", authState.User.FindFirstValue(ClaimTypes.Email));
-            NavigationManager.NavigateTo("/logout");
-            return;
+            ApiKeys = storedApiKeys;
+        }
+        else
+        {
+            ApiKeys = await Client.ApiKeysAllAsync();
         }
 
-        StorageInfo = await Client.StorageInfoAsync();
-        ApiKeys = await Client.ApiKeysAllAsync();
-        AllowedHosts = await Client.AllowedHostsAllAsync();
+        if (ApplicationState.TryTakeFromJson<ICollection<AllowedHost>?>(nameof(AllowedHosts), out var storedAllowedHosts))
+        {
+            AllowedHosts = storedAllowedHosts;
+        }
+        else
+        {
+            AllowedHosts = await Client.AllowedHostsAllAsync();
+        }
+
+        if (ApplicationState.TryTakeFromJson<ICollection<Bucket>?>(nameof(Buckets), out var storedBuckets))
+        {
+            Buckets = storedBuckets;
+        }
+        else
+        {
+            Buckets = await Client.BucketsAllAsync();
+        }
+
+        NavigationManager.LocationChanged += LocationChanged;
+    }
+
+    private async void LocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        Buckets = await Client.BucketsAllAsync();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task GenerateKey()
@@ -225,6 +250,12 @@
         {
             await JsRuntime.InvokeVoidAsync("alert", ex.Message);
         }
+    }
+
+    public void Dispose()
+    {
+        persistingSubscription.Dispose();
+        NavigationManager.LocationChanged -= LocationChanged;
     }
 
 }

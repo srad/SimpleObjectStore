@@ -1,18 +1,23 @@
 ﻿@page "/bucket/{bucketId}"
 
 @using SimpleObjectStore.Services.v1
-@using SimpleObjectStore.Admin.Components
 @using SimpleObjectStore.Admin.Extensions
 @using SimpleObjectStore.Admin.ViewModels
 @using System.Text
-@using SimpleObjectStore.Admin.Services
-@inject SimpleObjectStoreClient Client
-@inject ISettingsService SettingsService
-@inject IJSRuntime JsRuntime
-@inject ILogger<Detail> Logger;
-@inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Options
+@using SimpleObjectStore.Admin.Config
 
-<LoadIndicator Loaded="Bucket != null" LoadMessage="Loading...">
+@inject NavigationManager Navigation
+@inject ILogger<Detail> Logger
+@inject SimpleObjectStoreClient Client
+@inject IJSRuntime JsRuntime
+@inject IOptions<ApiConfig> Config
+@inject PersistentComponentState ApplicationState
+
+@attribute [Authorize(Roles = "objectstore")]
+
+@if (Bucket != null)
+{
     <div class="d-flex justify-content-between flex-row border-bottom mb-1">
         <div class="flex-column">
             <h3>@Bucket!.Name</h3>
@@ -72,9 +77,7 @@
             <th class="p-2 border">Last Access</th>
             <th class="p-2 border">Created at</th>
             <th class="p-2 border">Private</th>
-            <th class="text-center p-2 border" style="width: 5%">
-                Delete
-            </th>
+            <th class="text-center p-2 border" style="width: 5%">Delete</th>
             </thead>
             <tbody>
             @foreach (var file in Bucket.Files)
@@ -109,7 +112,7 @@
             </tbody>
         </table>
     </div>
-</LoadIndicator>
+}
 
 <style>
     .bg-selected {
@@ -118,69 +121,78 @@
 </style>
 
 @code {
+    PersistingComponentStateSubscription persistingSubscription;
+    
     private StringBuilder Messages { get; set; } = new();
     private int UploadCount { get; set; }
     private int UploadStep { get; set; }
     private BucketViewModel? Bucket { get; set; }
-    private string? Server { get; set; }
+    private string? Endpoint { get; set; }
     private bool IsUploading { get; set; }
     private bool AllChecked { get; set; }
     private bool ShowDeleteButton => AllChecked || (Bucket != null && Bucket.Files.Any(x => x.Selected));
-    private bool Loaded { get; set; }
 
-        private const int MaxFileSize = 1024 * 1024 * 1024;
-        private const int MaxFileCount = 1000;
+    private const int MaxFileSize = 1024 * 1024 * 1024;
+    private const int MaxFileCount = 1000;
 
-    [Parameter]
-    public string? BucketId { get; set; }
+    [Parameter] public string? BucketId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        await GetData();
-        Loaded = true;
+        persistingSubscription = ApplicationState.RegisterOnPersisting(() =>
+        {
+            ApplicationState.PersistAsJson(nameof(Endpoint), Endpoint);
+            ApplicationState.PersistAsJson(nameof(Bucket), Bucket);
+            return Task.CompletedTask;
+        });
+        
+        if (ApplicationState.TryTakeFromJson<string?>(nameof(Endpoint), out var storedEndpoint))
+        {
+            Endpoint = storedEndpoint;
+        }
+        else
+        {
+            Endpoint = Config.Value.Endpoint;
+        }
+        
+        if (ApplicationState.TryTakeFromJson<BucketViewModel?>(nameof(Bucket), out var storedBucket))
+        {
+            Bucket = storedBucket;
+        }
+        else
+        {
+            Bucket = await GetAsync();
+        }
     }
 
-    private async Task GetData()
+    private async Task<BucketViewModel> GetAsync()
     {
-        try
+        var bucketResponse = await Client.IdAsync(BucketId);
+       
+        return new BucketViewModel
         {
-            Server = SettingsService.GetEndpoint();
-            var bucketResponse = await Client.IdAsync(BucketId);
-            Bucket = new BucketViewModel
+            BucketId = bucketResponse.BucketId,
+            CreatedAt = bucketResponse.CreatedAt.ToString("dd.MM.yyyy hh:mm"),
+            LastAccess = bucketResponse.LastAccess.ToString("dd.MM.yyyy hh:mm"),
+            Private = bucketResponse.Private,
+            Name = bucketResponse.Name,
+            Size = bucketResponse.Size,
+            Files = bucketResponse.Files.Select(x => new BucketFileViewModel
             {
-                BucketId = bucketResponse.BucketId,
-                CreatedAt = bucketResponse.CreatedAt.ToString("dd.MM.yyyy hh:mm"),
-                LastAccess = bucketResponse.LastAccess.ToString("dd.MM.yyyy hh:mm"),
-                Private = bucketResponse.Private,
-                Name = bucketResponse.Name,
-                Size = bucketResponse.Size,
-                Files = bucketResponse.Files.Select(x => new BucketFileViewModel
-                {
-                    FileUrl = x.FileUrl(Server!),
-                    FileName = x.FileName,
-                    FileSize = x.FileSize,
-                    FileSizeMB = x.FileSizeMB,
-                    StorageFileId = x.StorageFileId,
-                    AccessCount = x.AccessCount,
-                    LastAccess = x.LastAccess.ToString("dd.MM.yyyy hh:mm"),
-                    CreatedAt = x.CreatedAt.ToString("dd.MM.yyyy hh:mm"),
-                    Selected = false,
-                    Private = x.Private
-                }).ToList()
-            };
-        }
-        catch (Exception ex)
-        {
-            if (!Loaded)
-            {
-                NavigationManager.NavigateTo("/");
-            }
-            else
-            {
-                Messages.AppendLine(ex.Message);
-            }
-        }
+                FileUrl = x.FileUrl(Endpoint),
+                FileName = x.FileName,
+                FileSize = x.FileSize,
+                FileSizeMB = x.FileSizeMB,
+                StorageFileId = x.StorageFileId,
+                AccessCount = x.AccessCount,
+                LastAccess = x.LastAccess.ToString("dd.MM.yyyy hh:mm"),
+                CreatedAt = x.CreatedAt.ToString("dd.MM.yyyy hh:mm"),
+                Selected = false,
+                Private = x.Private
+            }).ToList()
+        };
     }
+        
 
     private async Task DeleteAsync(string fileStorageFileId, string fileName)
     {
@@ -218,8 +230,8 @@
                 try
                 {
                     UploadStep += 1;
-    // Upload one by one. Actually could be uploaded all in one go, but the NSwag
-    // client generator messes up the list type.
+                    // Upload one by one. Actually could be uploaded all in one go, but the NSwag
+                    // client generator messes up the list type.
                     var fileContent = new StreamContent(file.OpenReadStream(MaxFileSize));
                     var uploads = new List<FileParameter> { new(await fileContent.ReadAsStreamAsync(), file.Name) };
 
@@ -232,7 +244,7 @@
                         {
                             Bucket?.Files.Add(new BucketFileViewModel
                             {
-                                FileUrl = r.StorageFile.FileUrl(Server),
+                                FileUrl = r.StorageFile.FileUrl(Endpoint),
                                 FileName = r.FileName,
                                 FileSizeMB = r.StorageFile.FileSizeMB,
                                 StorageFileId = r.StorageFile.StorageFileId,
@@ -243,6 +255,7 @@
                             });
                         }
                     }
+
                     await InvokeAsync(StateHasChanged);
                 }
                 catch (Exception ex)
@@ -270,7 +283,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await GetData();
+        Bucket = await GetAsync();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -319,6 +332,7 @@
         {
             await Client.PrivateAsync(view.StorageFileId);
         }
+
         view.Private = !view.Private;
     }
 
@@ -328,8 +342,13 @@
         {
             await Client.BucketsDELETEAsync(BucketId);
             await InvokeAsync(StateHasChanged);
-            NavigationManager.NavigateTo("/");
+            Navigation.NavigateTo("/");
         }
+    }
+
+    private async Task DownloadAsync(string fileStorageFileId, string fileFileName)
+    {
+        
     }
 
 }

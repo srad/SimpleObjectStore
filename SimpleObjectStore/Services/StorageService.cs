@@ -7,27 +7,16 @@ using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Services;
 
-public class StorageService : IStorageService
+public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<StorageService> logger) : IStorageService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly ISlug _slug;
-    private readonly ILogger<StorageService> _logger;
-    private readonly string _storagePath;
+    private readonly string _storagePath = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY") ?? throw new ArgumentNullException();
     private string BucketPath(string directoryName) => Path.Combine(_storagePath, directoryName);
 
-    public StorageService(ApplicationDbContext context, ISlug slug, ILogger<StorageService> logger)
-    {
-        _context = context;
-        _slug = slug;
-        _logger = logger;
-        _storagePath = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY") ?? throw new ArgumentNullException();
-    }
-
-    public async Task<IEnumerable<BucketFile>> ToListAsync() => await _context.BucketFiles.AsNoTracking().ToListAsync();
+    public async Task<IEnumerable<BucketFile>> ToListAsync() => await context.BucketFiles.AsNoTracking().ToListAsync();
 
     public async Task<ActionResult<BucketFile>> FindByIdAsync(string id)
     {
-        var storageFile = await _context.BucketFiles.FindAsync(id);
+        var storageFile = await context.BucketFiles.FindAsync(id);
 
         if (storageFile == null)
         {
@@ -44,11 +33,11 @@ public class StorageService : IStorageService
     /// <param name="bucketId"></param>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    public async Task<bool> ExistsAsync(string bucketId, string fileName) => await _context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == _slug.Generate(fileName));
+    public async Task<bool> ExistsAsync(string bucketId, string fileName) => await context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == slug.Generate(fileName));
 
     public async Task<List<CreateStorageFileResult>> SaveAsync(string bucketId, List<IFormFile> files)
     {
-        var bucket = await _context.Buckets
+        var bucket = await context.Buckets
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.BucketId == bucketId);
 
@@ -67,14 +56,14 @@ public class StorageService : IStorageService
                 //var ext = Path.GetExtension(file.FileName);
                 //fileNameSlug = $"{Guid.NewGuid().ToString()}{ext}";
                 // Create slug and check if already exists.
-                var fileNameSlug = _slug.Generate(file.FileName);
-                var fileExists = await _context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == fileNameSlug);
+                var fileNameSlug = slug.Generate(file.FileName);
+                var fileExists = await context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == fileNameSlug);
                 if (fileExists)
                 {
                     results.Add(new CreateStorageFileResult
                     {
                         FileName = file.FileName,
-                        StorageFile = await _context.BucketFiles.FirstAsync(x => x.BucketId == bucketId && x.StoredFileName == fileNameSlug),
+                        StorageFile = await context.BucketFiles.FirstAsync(x => x.BucketId == bucketId && x.StoredFileName == fileNameSlug),
                         Success = false,
                         ErrorMessage = $"A file '{fileNameSlug}' already exists in this bucket"
                     });
@@ -101,8 +90,8 @@ public class StorageService : IStorageService
                     BucketId = bucketId,
                     LastAccess = DateTimeOffset.Now,
                 };
-                await _context.BucketFiles.AddAsync(storage);
-                await _context.SaveChangesAsync();
+                await context.BucketFiles.AddAsync(storage);
+                await context.SaveChangesAsync();
                 results.Add(new CreateStorageFileResult()
                 {
                     FileName = file.FileName,
@@ -112,7 +101,7 @@ public class StorageService : IStorageService
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                logger.LogError(e.Message);
                 results.Add(new CreateStorageFileResult()
                 {
                     FileName = file.FileName,
@@ -127,7 +116,7 @@ public class StorageService : IStorageService
 
     public async Task DeleteAsync(string id)
     {
-        var storageFile = await _context.BucketFiles.FindAsync(id);
+        var storageFile = await context.BucketFiles.FindAsync(id);
         if (storageFile == null)
         {
             throw new Exception("File not found");
@@ -135,23 +124,23 @@ public class StorageService : IStorageService
 
         try
         {
-            _logger.LogInformation("Deleting file '{FilePath}'", storageFile.FilePath);
+            logger.LogInformation("Deleting file '{FilePath}'", storageFile.FilePath);
             File.Delete(storageFile.FilePath);
-            _context.BucketFiles.Remove(storageFile);
-            await _context.SaveChangesAsync();
+            context.BucketFiles.Remove(storageFile);
+            await context.SaveChangesAsync();
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            logger.LogError(e.Message);
             throw new Exception($"Error deleting '{storageFile.FilePath}': {e.Message}");
         }
     }
 
-    public async Task PrivateAsync(string id) => await _context.BucketFiles
+    public async Task PrivateAsync(string id) => await context.BucketFiles
         .Where(x => x.StorageFileId == id)
         .ExecuteUpdateAsync(x => x.SetProperty(p => p.Private, true));
 
-    public async Task PublicAsync(string id) => await _context.BucketFiles
+    public async Task PublicAsync(string id) => await context.BucketFiles
         .Where(x => x.StorageFileId == id)
         .ExecuteUpdateAsync(x => x.SetProperty(p => p.Private, false));
 
