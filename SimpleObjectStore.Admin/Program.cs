@@ -3,13 +3,15 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using SimpleObjectStore.Admin;
-using SimpleObjectStore.Admin.Services;
+using SimpleObjectStore.Admin.Config;
 using SimpleObjectStore.Services.v1;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<OpenIdConfig>(builder.Configuration.GetSection("OpenId"));
+builder.Services.Configure<ApiConfig>(builder.Configuration.GetSection("API"));
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -20,7 +22,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSassCompiler();
 #endif
 
-builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddScoped<OpenIdConfig>();
+builder.Services.AddScoped<ApiConfig>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -33,7 +36,7 @@ builder.Services.AddAuthentication(options =>
         options.LogoutPath = "/logout";
         options.AccessDeniedPath = new PathString("/access-denied");
         options.Cookie.Name = "SimpleObjectStore";
-        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.Path = "/; SameSite=None";
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     })
     .AddOpenIdConnect(options =>
@@ -50,6 +53,7 @@ builder.Services.AddAuthentication(options =>
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         options.AccessDeniedPath = new PathString("/access-denied");
+        options.SignedOutRedirectUri = "/signed-out";
         options.Authority = authority;
         options.ClientId = clientId;
         options.ClientSecret = clientSecret;
@@ -110,17 +114,6 @@ else
 {
     app.UseExceptionHandler("/Error");
 }
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseStatusCodePages(async context =>
-{
-    var response = context.HttpContext.Response;
-
-    if (response.StatusCode == (int)HttpStatusCode.Unauthorized || response.StatusCode == (int)HttpStatusCode.Forbidden)
-        response.Redirect("/login");
-});
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {

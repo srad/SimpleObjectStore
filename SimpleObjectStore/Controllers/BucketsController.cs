@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using SimpleObjectStore.Filters;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Services.Interfaces;
@@ -12,10 +11,10 @@ namespace SimpleObjectStore.Controllers;
 [ApiKey]
 public class BucketsController(ILogger<BucketsController> logger, IBucketsService service) : ControllerBase
 {
-    [HttpGet, OutputCache]
+    [HttpGet]
     public async Task<IEnumerable<Bucket>> GetAsync() => await service.ToListAsync();
 
-    [HttpGet($"{{{nameof(name)}}}/name"), OutputCache]
+    [HttpGet($"{{{nameof(name)}}}/name")]
     public async Task<ActionResult<Bucket>> GetByNameAsync(string name)
     {
         try
@@ -29,7 +28,7 @@ public class BucketsController(ILogger<BucketsController> logger, IBucketsServic
         }
     }
     
-    [HttpGet($"{{{nameof(id)}}}/id"), OutputCache]
+    [HttpGet($"{{{nameof(id)}}}/id")]
     public async Task<ActionResult<Bucket>> GetByIdAsync(string id)
     {
         try
@@ -43,7 +42,7 @@ public class BucketsController(ILogger<BucketsController> logger, IBucketsServic
         }
     }
 
-    [HttpGet($"exists/{{{nameof(name)}}}"), OutputCache]
+    [HttpGet($"exists/{{{nameof(name)}}}")]
     public async Task<ActionResult<bool>> BucketExistsAsync(string name)
     {
         try
@@ -62,7 +61,8 @@ public class BucketsController(ILogger<BucketsController> logger, IBucketsServic
     {
         try
         {
-            return Ok(await service.CreateAsync(name));
+            var create = await service.CreateAsync(name);
+            return Ok(create);
         }
         catch (Exception ex)
         {

@@ -1,29 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SimpleObjectStore.Helpers;
+﻿using Microsoft.EntityFrameworkCore;
 using SimpleObjectStore.Helpers.Interfaces;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Services;
 
-public class BucketsService : IBucketsService
+public class BucketsService(ApplicationDbContext context, ISlug slug, ILogger<BucketsService> logger) : IBucketsService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly ISlug _slug;
-    private readonly string _storagePath;
-    private readonly ILogger<BucketsService> _logger;
+    private readonly string _storagePath = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY") ?? throw new MissingFieldException("storage directory missing");
     private string BucketPath(string directoryName) => Path.Combine(_storagePath, directoryName);
 
-    public BucketsService(ApplicationDbContext context, ISlug slug, ILogger<BucketsService> logger)
-    {
-        _context = context;
-        _slug = slug;
-        _storagePath = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY") ?? throw new MissingFieldException("storage directory missing");
-        _logger = logger;
-    }
-
-    public async Task<IEnumerable<Bucket>> ToListAsync() => await _context.Buckets
+    public async Task<IEnumerable<Bucket>> ToListAsync() => await context.Buckets
         .Select(x => new Bucket
         {
             BucketId = x.BucketId,
@@ -37,7 +24,7 @@ public class BucketsService : IBucketsService
 
     public async Task<Bucket> FindByNameAsync(string name)
     {
-        var bucket = await _context.Buckets
+        var bucket = await context.Buckets
             .Include(x => x.Files)
             .Select(x => new Bucket
             {
@@ -58,10 +45,10 @@ public class BucketsService : IBucketsService
 
         return bucket;
     }
-    
+
     public async Task<Bucket> FindById(string id)
     {
-        var bucket = await _context.Buckets
+        var bucket = await context.Buckets
             .Include(x => x.Files)
             .Select(x => new Bucket
             {
@@ -83,64 +70,49 @@ public class BucketsService : IBucketsService
         return bucket;
     }
 
-    public async Task<ActionResult<Bucket>> CreateAsync(string name)
+    public async Task<Bucket> CreateAsync(string name)
     {
-        try
+        var slug1 = slug.Generate(name);
+
+        if (await context.Buckets.AnyAsync(x => x.Name == name || x.DirectoryName == slug1))
         {
-            var slug = _slug.Generate(name);
-
-            if (await _context.Buckets.AnyAsync(x => x.Name == name || x.DirectoryName == slug))
-            {
-                throw new Exception($"The bucket name '{name}' is already in use");
-            }
-
-            var timestamp = DateTimeOffset.Now;
-            var bucket = new Bucket
-            {
-                BucketId = Guid.NewGuid().ToString(),
-                Name = name,
-                DirectoryName = slug,
-                CreatedAt = timestamp,
-                LastAccess = timestamp
-            };
-
-            Directory.CreateDirectory(BucketPath(bucket.DirectoryName));
-            await _context.Buckets.AddAsync(bucket);
-            await _context.SaveChangesAsync();
-            return bucket;
+            throw new Exception($"The bucket name '{name}' is already in use");
         }
-        catch (Exception e)
+
+        var timestamp = DateTimeOffset.Now;
+        var bucket = new Bucket
         {
-            _logger.LogError(e.Message);
-            throw;
-        }
+            BucketId = Guid.NewGuid().ToString(),
+            Name = name,
+            DirectoryName = slug1,
+            CreatedAt = timestamp,
+            LastAccess = timestamp
+        };
+
+        Directory.CreateDirectory(BucketPath(bucket.DirectoryName));
+        await context.Buckets.AddAsync(bucket);
+        await context.SaveChangesAsync();
+
+        return bucket;
     }
 
     public async Task DeleteAsync(string id)
     {
-        try
+        var bucket = await context.Buckets
+            .Include(x => x.Files)
+            .FirstOrDefaultAsync(x => x.BucketId == id);
+
+        if (bucket == null)
         {
-            var bucket = await _context.Buckets
-                .Include(x => x.Files)
-                .FirstOrDefaultAsync(x => x.BucketId == id);
-
-            if (bucket == null)
-            {
-                throw new Exception("Bucket not found");
-            }
-
-            Directory.Delete(BucketPath(bucket.DirectoryName), true);
-
-            await _context.Buckets
-                .Where(x => x.BucketId == id)
-                .ExecuteDeleteAsync();
+            throw new Exception("Bucket not found");
         }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            throw;
-        }
+
+        Directory.Delete(BucketPath(bucket.DirectoryName), true);
+
+        await context.Buckets
+            .Where(x => x.BucketId == id)
+            .ExecuteDeleteAsync();
     }
 
-    public async Task<bool> ExistsAsync(string name) => await _context.Buckets.AnyAsync(x => x.Name == name);
+    public async Task<bool> ExistsAsync(string name) => await context.Buckets.AnyAsync(x => x.Name == name);
 }

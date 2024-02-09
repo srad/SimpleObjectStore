@@ -4,26 +4,19 @@ using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Services;
 
-public class AllowedHostsService : IAllowedHostsService
+public class AllowedHostsService(ApplicationDbContext context) : IAllowedHostsService
 {
-    private readonly ApplicationDbContext _context;
-
-    public AllowedHostsService(ApplicationDbContext context)
-    {
-        _context = context;
-    }
-    
     public async Task DeleteAsync(string host)
     {
-        if (await _context.AllowedHosts.CountAsync() == 1)
+        if (await context.AllowedHosts.CountAsync() == 1)
         {
             throw new Exception("At least one host must remain in database");
         }
 
-        await _context.AllowedHosts.Where(x => x.Hostname == host).ExecuteDeleteAsync();
+        await context.AllowedHosts.Where(x => x.Hostname == host).ExecuteDeleteAsync();
     }
     
-    public async Task<IEnumerable<AllowedHost>> ToListAsync() => await _context.AllowedHosts.ToListAsync();
+    public async Task<IEnumerable<AllowedHost>> ToListAsync() => await context.AllowedHosts.ToListAsync();
 
     public async Task<AllowedHost> CreateAsync(string host)
     {
@@ -40,14 +33,14 @@ public class AllowedHostsService : IAllowedHostsService
             throw new Exception($"The hostname '{host}' is invalid");
         }
 
-        if (await _context.AllowedHosts.AnyAsync(x => x.Hostname == host))
+        if (await context.AllowedHosts.AnyAsync(x => x.Hostname == host))
         {
             throw new Exception($"Hostname '{host}' already exists");
         }
 
         var newHost = new AllowedHost { Hostname = host };
-        await _context.AllowedHosts.AddAsync(newHost);
-        await _context.SaveChangesAsync();
+        await context.AllowedHosts.AddAsync(newHost);
+        await context.SaveChangesAsync();
 
         return newHost;
     }

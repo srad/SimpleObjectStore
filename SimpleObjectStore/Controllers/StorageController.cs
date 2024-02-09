@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using SimpleObjectStore.Filters;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Models.DTO;
@@ -13,7 +12,7 @@ namespace SimpleObjectStore.Controllers;
 [ApiKey]
 public class StorageController(ILogger<StorageController> logger, IStorageService service) : ControllerBase
 {
-    [HttpGet, OutputCache]
+    [HttpGet]
     public async Task<ActionResult<IEnumerable<BucketFile>>> GetFiles()
     {
         try
@@ -27,7 +26,7 @@ public class StorageController(ILogger<StorageController> logger, IStorageServic
         }
     }
 
-    [HttpGet($"{{{nameof(id)}}}"), OutputCache]
+    [HttpGet($"{{{nameof(id)}}}")]
     public async Task<ActionResult<BucketFile>> GetStorageFile(string id)
     {
         try
@@ -114,7 +113,7 @@ public class StorageController(ILogger<StorageController> logger, IStorageServic
         }
     }
 
-    [HttpGet("storageInfo"), OutputCache]
+    [HttpGet("storageInfo")]
     public ActionResult<StorageStats> GetStorageInfo()
     {
         try
