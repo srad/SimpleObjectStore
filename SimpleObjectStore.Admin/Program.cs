@@ -1,4 +1,3 @@
-using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -12,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<OpenIdConfig>(builder.Configuration.GetSection("OpenId"));
 builder.Services.Configure<ApiConfig>(builder.Configuration.GetSection("API"));
+
+builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -58,7 +59,7 @@ builder.Services.AddAuthentication(options =>
         options.ClientId = clientId;
         options.ClientSecret = clientSecret;
         options.ResponseType = "code";
-        options.SaveTokens = false;
+        options.SaveTokens = true;
         options.GetClaimsFromUserInfoEndpoint = true;
         options.UseTokenLifetime = false;
         options.RequireHttpsMetadata = builder.Environment.IsProduction() && !(builder.Configuration["DisableHttpsMetadata"] != null && builder.Configuration["DisableHttpsMetadata"] == "true");
@@ -68,13 +69,6 @@ builder.Services.AddAuthentication(options =>
 
         options.Events = new OpenIdConnectEvents
         {
-            OnAuthenticationFailed = ctx =>
-            {
-                ctx.Response.Redirect("/access-denied");
-                ctx.HandleResponse();
-                return Task.CompletedTask;
-            },
-
             OnAccessDenied = context =>
             {
                 context.HandleResponse();
