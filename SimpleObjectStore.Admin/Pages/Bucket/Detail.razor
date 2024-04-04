@@ -167,7 +167,7 @@
 
     private async Task<BucketViewModel> GetAsync()
     {
-        var bucketResponse = await Client.IdAsync(BucketId);
+        var bucketResponse = await Client.BucketsGetByIdAsync(BucketId);
        
         return new BucketViewModel
         {
@@ -203,7 +203,7 @@
                 return;
             }
 
-            await Client.StorageDELETEAsync(fileStorageFileId);
+            await Client.StorageDeleteAsync(fileStorageFileId);
             Bucket?.Files.RemoveAt(Bucket.Files.FindIndex(x => x.StorageFileId == fileStorageFileId));
             await InvokeAsync(StateHasChanged);
         }
@@ -235,7 +235,7 @@
                     var fileContent = new StreamContent(file.OpenReadStream(MaxFileSize));
                     var uploads = new List<FileParameter> { new(await fileContent.ReadAsStreamAsync(), file.Name) };
 
-                    var responses = await Client.StorageAllPOSTAsync(BucketId, uploads);
+                    var responses = await Client.StoragePostStorageFileAsync(BucketId, uploads);
                     uploadResults.AddRange(responses);
 
                     foreach (var r in responses)
@@ -311,7 +311,7 @@
         {
             try
             {
-                await Client.StorageDELETEAsync(file.StorageFileId);
+                await Client.StorageDeleteAsync(file.StorageFileId);
             }
             catch (Exception ex)
             {
@@ -326,11 +326,11 @@
     {
         if (view.Private)
         {
-            await Client.PublicAsync(view.StorageFileId);
+            await Client.StoragePublicAsync(view.StorageFileId);
         }
         else
         {
-            await Client.PrivateAsync(view.StorageFileId);
+            await Client.StoragePrivateAsync(view.StorageFileId);
         }
 
         view.Private = !view.Private;
@@ -340,7 +340,7 @@
     {
         if (await JsRuntime.InvokeAsync<bool>("confirm", $"Delete bucket '{Bucket!.Name}'?"))
         {
-            await Client.BucketsDELETEAsync(BucketId);
+            await Client.BucketsDeleteAsync(BucketId);
             await InvokeAsync(StateHasChanged);
             Navigation.NavigateTo("/");
         }

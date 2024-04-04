@@ -60,7 +60,13 @@ builder.Services.AddControllers()
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Version = "v1", Title = "SimpleObjectStore API" }); });
+builder.Services.AddSwaggerGen(o =>
+{
+    o.MapType<decimal>(() => new OpenApiSchema { Type = "number", Format = "decimal" });
+    o.MapType<decimal?>(() => new OpenApiSchema { Type = "number", Format = "decimal", Nullable = true });
+    o.CustomOperationIds(e => $"{e.ActionDescriptor.RouteValues["controller"]}{e.ActionDescriptor.RouteValues["action"]}");
+    o.SwaggerDoc("v1", new OpenApiInfo { Version = "v1", Title = "SimpleObjectStore API" });
+});
 
 builder.Services.AddOutputCache(options => { options.AddBasePolicy(b => b.Cache()); });
 
@@ -82,6 +88,7 @@ app.MapControllers();
 
 app.UseStaticFiles(new StaticFileOptions
 {
+    ServeUnknownFileTypes = true,
     FileProvider = new PhysicalFileProvider(storageDirectory),
     RequestPath = "",
     OnPrepareResponse = ctx => StaticFileOptionsHandler.OnPrepareResponse(app, ctx)

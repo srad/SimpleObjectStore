@@ -16,7 +16,7 @@ public class AllowedHostsService(ApplicationDbContext context) : IAllowedHostsSe
         await context.AllowedHosts.Where(x => x.Hostname == host).ExecuteDeleteAsync();
     }
     
-    public async Task<IEnumerable<AllowedHost>> ToListAsync() => await context.AllowedHosts.ToListAsync();
+    public async Task<IReadOnlyList<AllowedHost>> ToListAsync() => await context.AllowedHosts.ToListAsync();
 
     public async Task<AllowedHost> CreateAsync(string host)
     {

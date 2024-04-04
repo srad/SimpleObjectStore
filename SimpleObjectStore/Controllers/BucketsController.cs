@@ -9,80 +9,23 @@ namespace SimpleObjectStore.Controllers;
 [ApiController]
 [Produces("application/json")]
 [ApiKey]
-public class BucketsController(ILogger<BucketsController> logger, IBucketsService service) : ControllerBase
+public class BucketsController(IBucketsService service) : ControllerBase
 {
     [HttpGet]
-    public async Task<IEnumerable<Bucket>> GetAsync() => await service.ToListAsync();
+    public Task<IEnumerable<Bucket>> GetAsync() => service.ToListAsync();
 
     [HttpGet($"{{{nameof(name)}}}/name")]
-    public async Task<ActionResult<Bucket>> GetByNameAsync(string name)
-    {
-        try
-        {
-            return Ok(await service.FindByNameAsync(name));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
-    
+    public Task<Bucket> GetByNameAsync(string name) => service.FindByNameAsync(name);
+
     [HttpGet($"{{{nameof(id)}}}/id")]
-    public async Task<ActionResult<Bucket>> GetByIdAsync(string id)
-    {
-        try
-        {
-            return Ok(await service.FindById(id));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task<Bucket> GetByIdAsync(string id) => service.FindById(id);
 
     [HttpGet($"exists/{{{nameof(name)}}}")]
-    public async Task<ActionResult<bool>> BucketExistsAsync(string name)
-    {
-        try
-        {
-            return Ok(await service.ExistsAsync(name));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task<bool> BucketExistsAsync(string name) => service.ExistsAsync(name);
 
     [HttpPost($"{{{nameof(name)}}}")]
-    public async Task<ActionResult<Bucket>> PostBucketAsync(string name)
-    {
-        try
-        {
-            var create = await service.CreateAsync(name);
-            return Ok(create);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task<Bucket> PostBucketAsync(string name) => service.CreateAsync(name);
 
     [HttpDelete($"{{{nameof(id)}}}")]
-    public async Task<ActionResult> DeleteAsync(string id)
-    {
-        try
-        {
-            await service.DeleteAsync(id);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task DeleteAsync(string id) => service.DeleteAsync(id);
 }

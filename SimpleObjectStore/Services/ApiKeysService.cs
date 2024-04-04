@@ -6,7 +6,7 @@ namespace SimpleObjectStore.Services;
 
 public class ApiKeysService(ApplicationDbContext context, IKeyService keyService) : IApiKeysService
 {
-    public async Task<IEnumerable<ApiKey>> ToListAsync() => await context.ApiKeys.ToListAsync();
+    public async Task<IReadOnlyList<ApiKey>> ToListAsync() => await context.ApiKeys.ToListAsync();
     
     public async Task<ApiKey> CreateAsync(string title)
     {

@@ -10,120 +10,29 @@ namespace SimpleObjectStore.Controllers;
 [ApiController]
 [Produces("application/json")]
 [ApiKey]
-public class StorageController(ILogger<StorageController> logger, IStorageService service) : ControllerBase
+public class StorageController(IStorageService service) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<BucketFile>>> GetFiles()
-    {
-        try
-        {
-            return Ok(await service.ToListAsync());
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task<IReadOnlyList<BucketFile>> GetFiles() => service.ToListAsync();
 
     [HttpGet($"{{{nameof(id)}}}")]
-    public async Task<ActionResult<BucketFile>> GetStorageFile(string id)
-    {
-        try
-        {
-            return Ok(await service.FindByIdAsync(id));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task<BucketFile> GetStorageFile(string id) => service.FindByIdAsync(id);
 
     [HttpGet($"itemexists/{{{nameof(bucketId)}}}/{{{nameof(fileName)}}}")]
-    public async Task<ActionResult<bool>> ExistsAsync(string bucketId, string fileName)
-    {
-        try
-        {
-            return Ok(await service.ExistsAsync(bucketId, fileName));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task<bool> ExistsAsync(string bucketId, string fileName) => service.ExistsAsync(bucketId, fileName);
 
     [HttpPost("{bucketId}")]
-    public async Task<ActionResult<List<CreateStorageFileResult>>> PostStorageFileAsync(string bucketId, [FromForm] List<IFormFile> files)
-    {
-        try
-        {
-            return Ok(await service.SaveAsync(bucketId, files));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task<IReadOnlyList<CreateStorageFileResult>> PostStorageFileAsync(string bucketId, [FromForm] List<IFormFile> files) => service.SaveAsync(bucketId, files);
 
     [HttpDelete($"{{{nameof(id)}}}")]
-    public async Task<ActionResult> DeleteAsync(string id)
-    {
-        try
-        {
-            await service.DeleteAsync(id);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task DeleteAsync(string id) => service.DeleteAsync(id);
 
     [HttpPost("private")]
-    public async Task<ActionResult> PrivateAsync(string id)
-    {
-        try
-        {
-            await service.PrivateAsync(id);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task PrivateAsync(string id) => service.PrivateAsync(id);
 
     [HttpPost("public")]
-    public async Task<ActionResult> PublicAsync(string id)
-    {
-        try
-        {
-            await service.PublicAsync(id);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task PublicAsync(string id) => service.PublicAsync(id);
 
     [HttpGet("storageInfo")]
-    public ActionResult<StorageStats> GetStorageInfo()
-    {
-        try
-        {
-            return Ok(service.GetStorageStatsAsync());
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public StorageStats GetStorageInfo() => service.GetStorageStatsAsync();
 }

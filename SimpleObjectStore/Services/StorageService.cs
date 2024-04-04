@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SimpleObjectStore.Helpers.Interfaces;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Models.DTO;
@@ -12,9 +11,9 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
     private readonly string _storagePath = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY") ?? throw new ArgumentNullException();
     private string BucketPath(string directoryName) => Path.Combine(_storagePath, directoryName);
 
-    public async Task<IEnumerable<BucketFile>> ToListAsync() => await context.BucketFiles.AsNoTracking().ToListAsync();
+    public async Task<IReadOnlyList<BucketFile>> ToListAsync() => await context.BucketFiles.AsNoTracking().ToListAsync();
 
-    public async Task<ActionResult<BucketFile>> FindByIdAsync(string id)
+    public async Task<BucketFile> FindByIdAsync(string id)
     {
         var storageFile = await context.BucketFiles.FindAsync(id);
 
@@ -35,7 +34,7 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
     /// <returns></returns>
     public async Task<bool> ExistsAsync(string bucketId, string fileName) => await context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == slug.Generate(fileName));
 
-    public async Task<List<CreateStorageFileResult>> SaveAsync(string bucketId, List<IFormFile> files)
+    public async Task<IReadOnlyList<CreateStorageFileResult>> SaveAsync(string bucketId, List<IFormFile> files)
     {
         var bucket = await context.Buckets
             .AsNoTracking()
@@ -72,7 +71,7 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
 
                 // Upload
                 var filePath = Path.Combine(BucketPath(bucket.DirectoryName), fileNameSlug);
-                await using var stream = System.IO.File.OpenWrite(filePath);
+                await using var stream = File.OpenWrite(filePath);
                 await file.CopyToAsync(stream);
 
                 var storage = new BucketFile

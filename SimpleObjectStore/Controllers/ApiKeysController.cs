@@ -9,48 +9,14 @@ namespace SimpleObjectStore.Controllers;
 [ApiController]
 [Produces("application/json")]
 [ApiKey]
-public class ApiKeysController(ILogger<ApiKeysController> logger, IApiKeysService service) : ControllerBase
+public class ApiKeysController(IApiKeysService service) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ApiKey>>> GetKeysAsync()
-    {
-        try
-        {
-            return Ok(await service.ToListAsync());
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task<IReadOnlyList<ApiKey>> GetKeysAsync() => service.ToListAsync();
 
     [HttpDelete]
-    public async Task<ActionResult> DeleteAsync(string key)
-    {
-        try
-        {
-            await service.DeleteAsync(key);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task DeleteAsync(string key) => service.DeleteAsync(key);
 
     [HttpPost]
-    public async Task<ActionResult<ApiKey>> CreateAsync(string title)
-    {
-        try
-        {
-            return Ok(await service.CreateAsync(title));
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex.Message);
-            return BadRequest(ex.Message);
-        }
-    }
+    public Task<ApiKey> CreateAsync(string title) => service.CreateAsync(title);
 }

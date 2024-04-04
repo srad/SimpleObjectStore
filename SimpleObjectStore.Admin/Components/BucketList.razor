@@ -43,7 +43,7 @@
                 return;
             }
 
-            var newBucket = await Client.BucketsPOSTAsync(name);
+            var newBucket = await Client.BucketsPostBucketAsync(name);
             Buckets?.Add(newBucket);
             await InvokeAsync(StateHasChanged);
             Navigation.NavigateTo("/bucket/" + newBucket.BucketId);
