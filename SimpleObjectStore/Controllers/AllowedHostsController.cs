@@ -23,5 +23,5 @@ public class AllowedHostsController(IAllowedHostsService service) : ControllerBa
     /// <param name="host"></param>
     /// <returns></returns>
     [HttpPost($"{{{nameof(host)}}}")]
-    public Task<AllowedHost> PostAsync(string host) =>  service.CreateAsync(host);
+    public Task<AllowedHost> CreateAsync(string host) =>  service.CreateAsync(host);
 }

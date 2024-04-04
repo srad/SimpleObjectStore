@@ -21,10 +21,10 @@ public class BucketsController(IBucketsService service) : ControllerBase
     public Task<Bucket> GetByIdAsync(string id) => service.FindById(id);
 
     [HttpGet($"exists/{{{nameof(name)}}}")]
-    public Task<bool> BucketExistsAsync(string name) => service.ExistsAsync(name);
+    public Task<bool> ExistsAsync(string name) => service.ExistsAsync(name);
 
     [HttpPost($"{{{nameof(name)}}}")]
-    public Task<Bucket> PostBucketAsync(string name) => service.CreateAsync(name);
+    public Task<Bucket> CreateAsync(string name) => service.CreateAsync(name);
 
     [HttpDelete($"{{{nameof(id)}}}")]
     public Task DeleteAsync(string id) => service.DeleteAsync(id);

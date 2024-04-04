@@ -235,7 +235,7 @@
                     var fileContent = new StreamContent(file.OpenReadStream(MaxFileSize));
                     var uploads = new List<FileParameter> { new(await fileContent.ReadAsStreamAsync(), file.Name) };
 
-                    var responses = await Client.StoragePostStorageFileAsync(BucketId, uploads);
+                    var responses = await Client.StorageSaveFileAsync(BucketId, uploads);
                     uploadResults.AddRange(responses);
 
                     foreach (var r in responses)

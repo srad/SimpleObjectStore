@@ -221,15 +221,15 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<AllowedHost> AllowedHostsPostAsync(string host)
+        public virtual System.Threading.Tasks.Task<AllowedHost> AllowedHostsCreateAsync(string host)
         {
-            return AllowedHostsPostAsync(host, System.Threading.CancellationToken.None);
+            return AllowedHostsCreateAsync(host, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<AllowedHost> AllowedHostsPostAsync(string host, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<AllowedHost> AllowedHostsCreateAsync(string host, System.Threading.CancellationToken cancellationToken)
         {
             if (host == null)
                 throw new System.ArgumentNullException("host");
@@ -304,15 +304,15 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ApiKey>> ApiKeysGetKeysAsync()
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ApiKey>> ApiKeysGetAsync()
         {
-            return ApiKeysGetKeysAsync(System.Threading.CancellationToken.None);
+            return ApiKeysGetAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ApiKey>> ApiKeysGetKeysAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ApiKey>> ApiKeysGetAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -789,15 +789,15 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<bool> BucketsBucketExistsAsync(string name)
+        public virtual System.Threading.Tasks.Task<bool> BucketsExistsAsync(string name)
         {
-            return BucketsBucketExistsAsync(name, System.Threading.CancellationToken.None);
+            return BucketsExistsAsync(name, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<bool> BucketsBucketExistsAsync(string name, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<bool> BucketsExistsAsync(string name, System.Threading.CancellationToken cancellationToken)
         {
             if (name == null)
                 throw new System.ArgumentNullException("name");
@@ -871,15 +871,15 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Bucket> BucketsPostBucketAsync(string name)
+        public virtual System.Threading.Tasks.Task<Bucket> BucketsCreateAsync(string name)
         {
-            return BucketsPostBucketAsync(name, System.Threading.CancellationToken.None);
+            return BucketsCreateAsync(name, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Bucket> BucketsPostBucketAsync(string name, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<Bucket> BucketsCreateAsync(string name, System.Threading.CancellationToken cancellationToken)
         {
             if (name == null)
                 throw new System.ArgumentNullException("name");
@@ -1108,15 +1108,15 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<BucketFile> StorageGetStorageFileAsync(string id)
+        public virtual System.Threading.Tasks.Task<BucketFile> StorageGetFileAsync(string id)
         {
-            return StorageGetStorageFileAsync(id, System.Threading.CancellationToken.None);
+            return StorageGetFileAsync(id, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<BucketFile> StorageGetStorageFileAsync(string id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<BucketFile> StorageGetFileAsync(string id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -1353,15 +1353,15 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CreateStorageFileResult>> StoragePostStorageFileAsync(string bucketId, System.Collections.Generic.IEnumerable<FileParameter> files)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CreateStorageFileResult>> StorageSaveFileAsync(string bucketId, System.Collections.Generic.IEnumerable<FileParameter> files)
         {
-            return StoragePostStorageFileAsync(bucketId, files, System.Threading.CancellationToken.None);
+            return StorageSaveFileAsync(bucketId, files, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CreateStorageFileResult>> StoragePostStorageFileAsync(string bucketId, System.Collections.Generic.IEnumerable<FileParameter> files, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CreateStorageFileResult>> StorageSaveFileAsync(string bucketId, System.Collections.Generic.IEnumerable<FileParameter> files, System.Threading.CancellationToken cancellationToken)
         {
             if (bucketId == null)
                 throw new System.ArgumentNullException("bucketId");
@@ -1611,15 +1611,15 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<StorageStats> StorageGetStorageInfoAsync()
+        public virtual System.Threading.Tasks.Task<StorageStats> StorageGetInfoAsync()
         {
-            return StorageGetStorageInfoAsync(System.Threading.CancellationToken.None);
+            return StorageGetInfoAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<StorageStats> StorageGetStorageInfoAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<StorageStats> StorageGetInfoAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;

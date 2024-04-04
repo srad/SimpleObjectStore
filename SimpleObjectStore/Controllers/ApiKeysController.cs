@@ -12,7 +12,7 @@ namespace SimpleObjectStore.Controllers;
 public class ApiKeysController(IApiKeysService service) : ControllerBase
 {
     [HttpGet]
-    public Task<IReadOnlyList<ApiKey>> GetKeysAsync() => service.ToListAsync();
+    public Task<IReadOnlyList<ApiKey>> GetAsync() => service.ToListAsync();
 
     [HttpDelete]
     public Task DeleteAsync(string key) => service.DeleteAsync(key);

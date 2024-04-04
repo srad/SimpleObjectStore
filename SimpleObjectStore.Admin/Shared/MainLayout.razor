@@ -149,7 +149,7 @@
         }
         else
         {
-            StorageInfo = await Client.StorageGetStorageInfoAsync();
+            StorageInfo = await Client.StorageGetInfoAsync();
         }
 
         if (ApplicationState.TryTakeFromJson<ICollection<ApiKey>?>(nameof(ApiKeys), out var storedApiKeys))
@@ -158,7 +158,7 @@
         }
         else
         {
-            ApiKeys = await Client.ApiKeysGetKeysAsync();
+            ApiKeys = await Client.ApiKeysGetAsync();
         }
 
         if (ApplicationState.TryTakeFromJson<ICollection<AllowedHost>?>(nameof(AllowedHosts), out var storedAllowedHosts))
@@ -242,7 +242,7 @@
 
         try
         {
-            await Client.AllowedHostsPostAsync(host);
+            await Client.AllowedHostsCreateAsync(host);
             AllowedHosts?.Add(new AllowedHost { Hostname = host });
             await InvokeAsync(StateHasChanged);
         }
