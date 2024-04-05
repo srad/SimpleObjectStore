@@ -6,10 +6,12 @@ using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Services;
 
-public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<StorageService> logger) : IStorageService
+public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<StorageService> logger, IHttpContextAccessor _httpContextAccessor) : IStorageService
 {
     private readonly string _storagePath = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY") ?? throw new ArgumentNullException();
     private string BucketPath(string directoryName) => Path.Combine(_storagePath, directoryName);
+
+    private readonly string _url = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
 
     public async Task<IReadOnlyList<BucketFile>> ToListAsync() => await context.BucketFiles.AsNoTracking().ToListAsync();
 
@@ -21,6 +23,8 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
         {
             throw new Exception("Storage item not found");
         }
+
+        storageFile.Url = _url + storageFile;
 
         return storageFile;
     }
@@ -34,7 +38,7 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
     /// <returns></returns>
     public async Task<bool> ExistsAsync(string bucketId, string fileName) => await context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == slug.Generate(fileName));
 
-    public async Task<IReadOnlyList<CreateStorageFileResult>> SaveAsync(string bucketId, List<IFormFile> files)
+    public async Task<IReadOnlyList<CreateFileDto>> SaveAsync(string bucketId, List<IFormFile> files)
     {
         var bucket = await context.Buckets
             .AsNoTracking()
@@ -45,7 +49,7 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
             throw new Exception("Bucket not found");
         }
 
-        var results = new List<CreateStorageFileResult>();
+        var results = new List<CreateFileDto>();
         foreach (var file in files)
         {
             try
@@ -59,10 +63,24 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
                 var fileExists = await context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == fileNameSlug);
                 if (fileExists)
                 {
-                    results.Add(new CreateStorageFileResult
+                    var findFile = await context.BucketFiles.FirstAsync(x => x.BucketId == bucketId && x.StoredFileName == fileNameSlug);
+
+                    results.Add(new CreateFileDto
                     {
                         FileName = file.FileName,
-                        StorageFile = await context.BucketFiles.FirstAsync(x => x.BucketId == bucketId && x.StoredFileName == fileNameSlug),
+                        File = new FileViewDto
+                        {
+                            FileName = findFile.FileName,
+                            RelativeUrl = findFile.Url,
+                            AbsoluteUrl = $"{_url}/{findFile.Url}",
+                            CreatedAt = findFile.CreatedAt,
+                            FileSizeMB = findFile.FileSizeMB,
+                            LastAccess = findFile.LastAccess,
+                            Private = findFile.Private,
+                            StorageFileId = findFile.StorageFileId,
+                            FileSize = findFile.FileSize,
+                            AccessCount = findFile.AccessCount
+                        },
                         Success = false,
                         ErrorMessage = $"A file '{fileNameSlug}' already exists in this bucket"
                     });
@@ -91,17 +109,30 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
                 };
                 await context.BucketFiles.AddAsync(storage);
                 await context.SaveChangesAsync();
-                results.Add(new CreateStorageFileResult()
+
+                results.Add(new CreateFileDto
                 {
                     FileName = file.FileName,
-                    StorageFile = storage,
+                    File = new FileViewDto
+                    {
+                        FileName = storage.FileName,
+                        RelativeUrl = storage.Url,
+                        AbsoluteUrl = $"{_url}/{storage.Url}",
+                        CreatedAt = storage.CreatedAt,
+                        FileSizeMB = storage.FileSizeMB,
+                        LastAccess = storage.LastAccess,
+                        Private = storage.Private,
+                        StorageFileId = storage.StorageFileId,
+                        FileSize = storage.FileSize,
+                        AccessCount = storage.AccessCount
+                    },
                     Success = true,
                 });
             }
             catch (Exception e)
             {
                 logger.LogError(e.Message);
-                results.Add(new CreateStorageFileResult()
+                results.Add(new CreateFileDto()
                 {
                     FileName = file.FileName,
                     ErrorMessage = e.Message,
@@ -143,13 +174,13 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
         .Where(x => x.StorageFileId == id)
         .ExecuteUpdateAsync(x => x.SetProperty(p => p.Private, false));
 
-    public StorageStats GetStorageStatsAsync()
+    public StorageInfoDto GetStorageStatsAsync()
     {
         var drive = new DriveInfo(_storagePath);
         var free = (float)drive.TotalFreeSpace / 1024 / 1024 / 1024;
         var total = (float)drive.TotalSize / 1024 / 1024 / 1024;
 
-        return new StorageStats
+        return new StorageInfoDto
         {
             FreeGB = free,
             SizeGB = total,

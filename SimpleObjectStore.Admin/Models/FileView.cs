@@ -1,9 +1,8 @@
-﻿namespace SimpleObjectStore.Admin.ViewModels;
+﻿namespace SimpleObjectStore.Admin.Models;
 
-public class BucketFileViewModel
+public class FileView
 {
     public string FileName { get; set; }
-    public string FileUrl { get; set; }
     public string FileSizeMB { get; set; }
     public string StorageFileId { get; set; }
     public long AccessCount { get; set; }
@@ -12,4 +11,6 @@ public class BucketFileViewModel
     public bool Selected { get; set; }
     public long FileSize { get; set; }
     public bool Private { get; set; }
+    public string RelativeUrl { get; set; }
+    public string AbsoluteUrl { get; set; }
 }

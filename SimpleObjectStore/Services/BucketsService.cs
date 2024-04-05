@@ -1,76 +1,93 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimpleObjectStore.Helpers.Interfaces;
 using SimpleObjectStore.Models;
+using SimpleObjectStore.Models.DTO;
 using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Services;
 
-public class BucketsService(ApplicationDbContext context, ISlug slug, ILogger<BucketsService> logger) : IBucketsService
+/// <summary>
+/// Could optionally also use a storage strategy.
+/// </summary>
+/// <param name="context"></param>
+/// <param name="slug"></param>
+/// <param name="accessor"></param>
+public class BucketsService(ApplicationDbContext context, ISlug slug, IHttpContextAccessor _httpContextAccessor) : IBucketsService
 {
     private readonly string _storagePath = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY") ?? throw new MissingFieldException("storage directory missing");
+    private readonly string _url = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
+
     private string BucketPath(string directoryName) => Path.Combine(_storagePath, directoryName);
 
-    public async Task<IEnumerable<Bucket>> ToListAsync() => await context.Buckets
-        .Select(x => new Bucket
+    public async Task<IReadOnlyList<BucketViewDto>> ToListAsync() => await context.Buckets
+        .AsNoTracking()
+        .Select(x => new BucketViewDto
         {
             BucketId = x.BucketId,
             CreatedAt = x.CreatedAt,
-            Size = x.Files.Count,
+            LastAccess = default,
+            FileCount = x.Files.Count,
+            Private = x.Private,
+            Files = null,
             DirectoryName = x.DirectoryName,
-            Name = x.Name
+            Name = x.Name,
         })
-        .AsNoTracking()
         .ToListAsync();
 
-    public async Task<Bucket> FindByNameAsync(string name)
-    {
-        var bucket = await context.Buckets
-            .Include(x => x.Files)
-            .Select(x => new Bucket
-            {
-                Files = x.Files,
-                CreatedAt = x.CreatedAt,
-                BucketId = x.BucketId,
-                Name = x.Name,
-                Size = x.Files.Count(),
-                DirectoryName = x.DirectoryName,
-            })
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Name == name);
-
-        if (bucket == null)
+    public Task<BucketViewDto> FindByNameAsync(string name) => context.Buckets
+        .AsNoTracking()
+        .Include(x => x.Files)
+        .Select(bucket => new BucketViewDto
         {
-            throw new Exception("Bucket not found");
-        }
+            CreatedAt = bucket.CreatedAt,
+            BucketId = bucket.BucketId,
+            Name = bucket.Name,
+            FileCount = bucket.Files.Count,
+            DirectoryName = bucket.DirectoryName,
 
-        return bucket;
-    }
-
-    public async Task<Bucket> FindById(string id)
-    {
-        var bucket = await context.Buckets
-            .Include(x => x.Files)
-            .Select(x => new Bucket
+            Files = bucket.Files.Select(file => new FileViewDto
             {
-                Files = x.Files,
-                CreatedAt = x.CreatedAt,
-                BucketId = x.BucketId,
-                Name = x.Name,
-                Size = x.Files.Count(),
-                DirectoryName = x.DirectoryName,
-            })
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.BucketId == id);
+                FileName = file.FileName,
+                RelativeUrl = file.Url,
+                AbsoluteUrl = _url + file.Url,
+                CreatedAt = file.CreatedAt,
+                FileSizeMB = file.FileSizeMB,
+                FileSize = file.FileSize,
+                AccessCount = file.AccessCount,
+                LastAccess = default,
+                Private = false,
+                StorageFileId = file.StorageFileId,
+            }).ToList(),
+        })
+        .FirstAsync(x => x.Name == name);
 
-        if (bucket == null)
+    public Task<BucketViewDto> FindById(string id) => context.Buckets
+        .AsNoTracking()
+        .Include(bucket => bucket.Files)
+        .Select(bucket => new BucketViewDto
         {
-            throw new Exception("Bucket not found");
-        }
+            CreatedAt = bucket.CreatedAt,
+            BucketId = bucket.BucketId,
+            Name = bucket.Name,
+            FileCount = bucket.Files.Count(),
+            DirectoryName = bucket.DirectoryName,
+            Files = bucket.Files.Select(file => new FileViewDto
+            {
+                FileName = file.FileName,
+                RelativeUrl = file.Url,
+                CreatedAt = file.CreatedAt,
+                FileSizeMB = file.FileSizeMB,
+                LastAccess = file.LastAccess,
+                Private = file.Private,
+                StorageFileId = file.StorageFileId,
+                FileSize = file.FileSize,
+                AccessCount = file.AccessCount,
+                AbsoluteUrl = $"{_url}/{file.Url}",
+            }).ToList(),
+        })
+        .FirstAsync(x => x.BucketId == id);
 
-        return bucket;
-    }
-
-    public async Task<Bucket> CreateAsync(string name)
+    public async Task<BucketViewDto> CreateAsync(string name)
     {
         var slug1 = slug.Generate(name);
 
@@ -86,14 +103,24 @@ public class BucketsService(ApplicationDbContext context, ISlug slug, ILogger<Bu
             Name = name,
             DirectoryName = slug1,
             CreatedAt = timestamp,
-            LastAccess = timestamp
+            LastAccess = timestamp,
         };
 
         Directory.CreateDirectory(BucketPath(bucket.DirectoryName));
+
         await context.Buckets.AddAsync(bucket);
         await context.SaveChangesAsync();
 
-        return bucket;
+        return new BucketViewDto
+        {
+            BucketId = bucket.BucketId,
+            Name = bucket.Name,
+            DirectoryName = bucket.DirectoryName,
+            CreatedAt = bucket.CreatedAt,
+            LastAccess = bucket.LastAccess,
+            FileCount = bucket.Size,
+            Private = bucket.Private,
+        };
     }
 
     public async Task DeleteAsync(string id)

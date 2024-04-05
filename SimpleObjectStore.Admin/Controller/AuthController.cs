@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ansari.Frontend.Controller;
+namespace SimpleObjectStore.Admin.Controller;
 
 [Route("/[action]")]
 public class AuthController : Microsoft.AspNetCore.Mvc.Controller

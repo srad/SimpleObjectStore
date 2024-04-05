@@ -12,6 +12,6 @@ if not exist ".\Resources\bin\nswag" (
     del .\Resources\bin\nswag.zip
 )
 
-.\Resources\bin\nswag\Net80\dotnet-nswag.exe openapi2csclient /input:https://localhost:44312/swagger/v1/swagger.json /GenerateNativeRecords:true /classname:SimpleObjectStoreClient /namespace:SimpleObjectStore.Services.v1 /output:.\SimpleObjectStore.Admin\Services\v1\StorageClient.cs /ArrayType:System.Collections.Generic.List /ArrayInstanceType:System.Collections.Generic.List /JsonLibrary:SystemTextJson
+.\Resources\bin\nswag\Net80\dotnet-nswag.exe openapi2csclient /input:https://localhost:44312/swagger/v1/swagger.json /GenerateNativeRecords:true /classname:SimpleObjectStoreClient /namespace:SimpleObjectStore.Admin.Services.v1 /output:.\SimpleObjectStore.Admin\Services\v1\StorageClient.cs /ArrayType:System.Collections.Generic.List /ArrayInstanceType:System.Collections.Generic.List /JsonLibrary:SystemTextJson
 
 exit

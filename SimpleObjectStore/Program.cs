@@ -44,6 +44,8 @@ if (!Directory.Exists(storageDirectory))
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("DB_PATH")}"); });
 builder.Services.AddScoped<IApiKeysService, ApiKeysService>();
 builder.Services.AddScoped<IAuthorizationFilter, ApiAuthorizationFilter>();

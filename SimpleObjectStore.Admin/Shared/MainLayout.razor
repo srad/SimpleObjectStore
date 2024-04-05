@@ -1,5 +1,5 @@
-﻿@using SimpleObjectStore.Services.v1
-@using SimpleObjectStore.Admin.Extensions
+﻿@using SimpleObjectStore.Admin.Extensions
+@using SimpleObjectStore.Admin.Services.v1
 
 @inherits LayoutComponentBase
 
@@ -127,10 +127,10 @@
 
 @code{
     private PersistingComponentStateSubscription persistingSubscription;
-    private StorageStats? StorageInfo { get; set; }
+    private StorageInfoDto? StorageInfo { get; set; }
     private ICollection<ApiKey>? ApiKeys { get; set; }
     private ICollection<AllowedHost>? AllowedHosts { get; set; }
-    public ICollection<Bucket>? Buckets { get; set; }
+    private ICollection<BucketViewDto> Buckets { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -143,7 +143,7 @@
             return Task.CompletedTask;
         });
 
-        if (ApplicationState.TryTakeFromJson<StorageStats?>(nameof(StorageInfo), out var storedStorageInfo))
+        if (ApplicationState.TryTakeFromJson<StorageInfoDto?>(nameof(StorageInfo), out var storedStorageInfo))
         {
             StorageInfo = storedStorageInfo;
         }
@@ -170,7 +170,7 @@
             AllowedHosts = await Client.AllowedHostsGetAsync();
         }
 
-        if (ApplicationState.TryTakeFromJson<ICollection<Bucket>?>(nameof(Buckets), out var storedBuckets))
+        if (ApplicationState.TryTakeFromJson<ICollection<BucketViewDto>?>(nameof(Buckets), out var storedBuckets))
         {
             Buckets = storedBuckets;
         }

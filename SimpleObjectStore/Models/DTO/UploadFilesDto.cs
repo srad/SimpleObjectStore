@@ -1,6 +1,6 @@
 ﻿namespace SimpleObjectStore.Models.DTO;
 
-public class UploadFiles
+public record UploadFilesDto
 {
     public IEnumerable<IFormFile> Files { get; set; }
     public bool UseGuidName { get; set; }

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using SimpleObjectStore.Admin;
 using SimpleObjectStore.Admin.Config;
-using SimpleObjectStore.Services.v1;
+using SimpleObjectStore.Admin.Services.v1;
 
 var builder = WebApplication.CreateBuilder(args);
 

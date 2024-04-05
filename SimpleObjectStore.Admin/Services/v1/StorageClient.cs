@@ -17,7 +17,7 @@
 #pragma warning disable 8625 // Disable "CS8625 Cannot convert null literal to non-nullable reference type"
 #pragma warning disable CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
 
-namespace SimpleObjectStore.Services.v1
+namespace SimpleObjectStore.Admin.Services.v1
 {
     using System = global::System;
 
@@ -545,7 +545,7 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Bucket>> BucketsGetAsync()
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BucketViewDto>> BucketsGetAsync()
         {
             return BucketsGetAsync(System.Threading.CancellationToken.None);
         }
@@ -553,7 +553,7 @@ namespace SimpleObjectStore.Services.v1
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<Bucket>> BucketsGetAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<BucketViewDto>> BucketsGetAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -594,7 +594,7 @@ namespace SimpleObjectStore.Services.v1
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<Bucket>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<BucketViewDto>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -623,7 +623,7 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Bucket> BucketsGetByNameAsync(string name)
+        public virtual System.Threading.Tasks.Task<BucketViewDto> BucketsGetByNameAsync(string name)
         {
             return BucketsGetByNameAsync(name, System.Threading.CancellationToken.None);
         }
@@ -631,7 +631,7 @@ namespace SimpleObjectStore.Services.v1
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Bucket> BucketsGetByNameAsync(string name, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<BucketViewDto> BucketsGetByNameAsync(string name, System.Threading.CancellationToken cancellationToken)
         {
             if (name == null)
                 throw new System.ArgumentNullException("name");
@@ -677,7 +677,7 @@ namespace SimpleObjectStore.Services.v1
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Bucket>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<BucketViewDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -706,7 +706,7 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Bucket> BucketsGetByIdAsync(string id)
+        public virtual System.Threading.Tasks.Task<BucketViewDto> BucketsGetByIdAsync(string id)
         {
             return BucketsGetByIdAsync(id, System.Threading.CancellationToken.None);
         }
@@ -714,7 +714,7 @@ namespace SimpleObjectStore.Services.v1
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Bucket> BucketsGetByIdAsync(string id, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<BucketViewDto> BucketsGetByIdAsync(string id, System.Threading.CancellationToken cancellationToken)
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
@@ -760,7 +760,7 @@ namespace SimpleObjectStore.Services.v1
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Bucket>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<BucketViewDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -871,7 +871,7 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<Bucket> BucketsCreateAsync(string name)
+        public virtual System.Threading.Tasks.Task<BucketViewDto> BucketsCreateAsync(string name)
         {
             return BucketsCreateAsync(name, System.Threading.CancellationToken.None);
         }
@@ -879,7 +879,7 @@ namespace SimpleObjectStore.Services.v1
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<Bucket> BucketsCreateAsync(string name, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<BucketViewDto> BucketsCreateAsync(string name, System.Threading.CancellationToken cancellationToken)
         {
             if (name == null)
                 throw new System.ArgumentNullException("name");
@@ -925,7 +925,7 @@ namespace SimpleObjectStore.Services.v1
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<Bucket>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<BucketViewDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1293,8 +1293,8 @@ namespace SimpleObjectStore.Services.v1
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/v1/Storage/itemexists/{bucketId}/{fileName}"
-                    urlBuilder_.Append("api/v1/Storage/itemexists/");
+                    // Operation Path: "api/v1/Storage/exists/{bucketId}/{fileName}"
+                    urlBuilder_.Append("api/v1/Storage/exists/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(bucketId, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('/');
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(fileName, System.Globalization.CultureInfo.InvariantCulture)));
@@ -1353,7 +1353,7 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CreateStorageFileResult>> StorageSaveFileAsync(string bucketId, System.Collections.Generic.IEnumerable<FileParameter> files)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CreateFileDto>> StorageSaveFileAsync(string bucketId, System.Collections.Generic.IEnumerable<FileParameter> files)
         {
             return StorageSaveFileAsync(bucketId, files, System.Threading.CancellationToken.None);
         }
@@ -1361,7 +1361,7 @@ namespace SimpleObjectStore.Services.v1
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CreateStorageFileResult>> StorageSaveFileAsync(string bucketId, System.Collections.Generic.IEnumerable<FileParameter> files, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<CreateFileDto>> StorageSaveFileAsync(string bucketId, System.Collections.Generic.IEnumerable<FileParameter> files, System.Threading.CancellationToken cancellationToken)
         {
             if (bucketId == null)
                 throw new System.ArgumentNullException("bucketId");
@@ -1424,7 +1424,7 @@ namespace SimpleObjectStore.Services.v1
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<CreateStorageFileResult>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<CreateFileDto>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1611,7 +1611,7 @@ namespace SimpleObjectStore.Services.v1
 
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<StorageStats> StorageGetInfoAsync()
+        public virtual System.Threading.Tasks.Task<StorageInfoDto> StorageGetInfoAsync()
         {
             return StorageGetInfoAsync(System.Threading.CancellationToken.None);
         }
@@ -1619,7 +1619,7 @@ namespace SimpleObjectStore.Services.v1
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<StorageStats> StorageGetInfoAsync(System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<StorageInfoDto> StorageGetInfoAsync(System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -1632,8 +1632,8 @@ namespace SimpleObjectStore.Services.v1
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/v1/Storage/storageInfo"
-                    urlBuilder_.Append("api/v1/Storage/storageInfo");
+                    // Operation Path: "api/v1/Storage/storage_info"
+                    urlBuilder_.Append("api/v1/Storage/storage_info");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -1660,7 +1660,7 @@ namespace SimpleObjectStore.Services.v1
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<StorageStats>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<StorageInfoDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1831,41 +1831,6 @@ namespace SimpleObjectStore.Services.v1
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.0.7.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record Bucket
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("bucketId")]
-        [System.ComponentModel.DataAnnotations.StringLength(36)]
-        public string BucketId { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("name")]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string Name { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("directoryName")]
-        [System.ComponentModel.DataAnnotations.Required]
-        public string DirectoryName { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("createdAt")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.DateTimeOffset CreatedAt { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("lastAccess")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public System.DateTimeOffset LastAccess { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("size")]
-        public int Size { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("private")]
-        public bool Private { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("files")]
-        public System.Collections.Generic.List<BucketFile> Files { get; set; }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.0.7.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial record BucketFile
     {
 
@@ -1917,7 +1882,37 @@ namespace SimpleObjectStore.Services.v1
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.0.7.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record CreateStorageFileResult
+    public partial record BucketViewDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("bucketId")]
+        public string BucketId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("directoryName")]
+        public string DirectoryName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdAt")]
+        public System.DateTimeOffset CreatedAt { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("lastAccess")]
+        public System.DateTimeOffset LastAccess { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fileCount")]
+        public int FileCount { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("private")]
+        public bool Private { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("files")]
+        public System.Collections.Generic.List<FileViewDto> Files { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.0.7.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record CreateFileDto
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("fileName")]
@@ -1926,8 +1921,8 @@ namespace SimpleObjectStore.Services.v1
         [System.Text.Json.Serialization.JsonPropertyName("url")]
         public string Url { get; set; }
 
-        [System.Text.Json.Serialization.JsonPropertyName("storageFile")]
-        public BucketFile StorageFile { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("file")]
+        public FileViewDto File { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("success")]
         public bool Success { get; set; }
@@ -1938,7 +1933,43 @@ namespace SimpleObjectStore.Services.v1
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.0.7.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial record StorageStats
+    public partial record FileViewDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("fileName")]
+        public string FileName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("relativeUrl")]
+        public string RelativeUrl { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("absoluteUrl")]
+        public string AbsoluteUrl { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("createdAt")]
+        public System.DateTimeOffset CreatedAt { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fileSizeMB")]
+        public string FileSizeMB { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("lastAccess")]
+        public System.DateTimeOffset LastAccess { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("private")]
+        public bool Private { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("storageFileId")]
+        public string StorageFileId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fileSize")]
+        public long FileSize { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("accessCount")]
+        public long AccessCount { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.0.7.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial record StorageInfoDto
     {
 
         [System.Text.Json.Serialization.JsonPropertyName("freeGB")]

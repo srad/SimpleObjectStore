@@ -1,13 +1,14 @@
 ﻿using SimpleObjectStore.Models;
+using SimpleObjectStore.Models.DTO;
 
 namespace SimpleObjectStore.Services.Interfaces;
 
 public interface IBucketsService
 {
-    Task<IEnumerable<Bucket>> ToListAsync();
-    Task<Bucket> FindByNameAsync(string name);
-    Task<Bucket> FindById(string id);
-    Task<Bucket> CreateAsync(string name);
+    Task<IReadOnlyList<BucketViewDto>> ToListAsync();
+    Task<BucketViewDto> FindByNameAsync(string name);
+    Task<BucketViewDto> FindById(string id);
+    Task<BucketViewDto> CreateAsync(string name);
     Task DeleteAsync(string id);
     Task<bool> ExistsAsync(string name);
 }
