@@ -9,6 +9,6 @@ public record BucketViewDto
     public DateTimeOffset LastAccess { get; set; }
     public int FileCount { get; set; }
     public bool Private { get; set; }
-
     public IReadOnlyList<FileViewDto>? Files { get; set; } = [];
+    public bool AsDownload { get; set; }
 }

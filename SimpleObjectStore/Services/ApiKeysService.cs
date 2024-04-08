@@ -4,17 +4,23 @@ using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Services;
 
-public class ApiKeysService(ApplicationDbContext context, IKeyService keyService) : IApiKeysService
+public class ApiKeysService(IDbContextFactory<ApplicationDbContext> factory, IKeyService keyService) : IApiKeysService
 {
-    public async Task<IReadOnlyList<ApiKey>> ToListAsync() => await context.ApiKeys.ToListAsync();
-    
+    public async Task<IReadOnlyList<ApiKey>> ToListAsync()
+    {
+        var context = await factory.CreateDbContextAsync();
+        
+        return await context.ApiKeys.ToListAsync();
+    }
+
     public async Task<ApiKey> CreateAsync(string title)
     {
         var key = new ApiKey
         {
             Key = keyService.GenerateKey(), Title = title, CreatedAt = DateTimeOffset.UtcNow, AccessTimeLimited = false
         };
-
+        
+        var context = await factory.CreateDbContextAsync();
         await context.ApiKeys.AddAsync(key);
         await context.SaveChangesAsync();
 
@@ -23,6 +29,8 @@ public class ApiKeysService(ApplicationDbContext context, IKeyService keyService
     
     public async Task DeleteAsync(string key)
     {
+        var context = await factory.CreateDbContextAsync();
+        
         if (await context.ApiKeys.CountAsync() == 1)
         {
             throw new Exception("At least one key must remain in database");

@@ -8,7 +8,8 @@ public class BucketView
     public bool Private { get; set; }
     public string Name { get; set; }
     public int FileCount { get; set; }
-    public string StorageSizeMB => String.Format("{0:0.00}", Size / 1024 / 1024);
+    public string StorageSizeMB => String.Format("{0:0.00}", (double)Size / 1024 / 1024);
     public List<FileView> Files { get; set; } = [];
     public long Size => Files.Sum(x => x.FileSize);
+    public bool AsDownload { get; set; }
 }

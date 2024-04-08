@@ -14,6 +14,7 @@ public class Bucket
     [Required] public DateTimeOffset LastAccess { get; set; }
     [NotMapped] public int Size { get; set; }
     [Required] public bool Private { get; set; }
+    [Required] public bool AsDownload { get; set; }
 
     public ICollection<BucketFile> Files { get; set; }
 }

@@ -11,4 +11,5 @@ public interface IBucketsService
     Task<BucketViewDto> CreateAsync(string name);
     Task DeleteAsync(string id);
     Task<bool> ExistsAsync(string name);
+    Task AsDownloadAsync(string id, bool download);
 }

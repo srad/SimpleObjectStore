@@ -5,14 +5,18 @@ using SimpleObjectStore.Models;
 
 namespace SimpleObjectStore.Http;
 
+/// <summary>
+/// File responses handled here. One could also implement this as controller action. (MapControllers)
+/// </summary>
 public static class StaticFileOptionsHandler
 {
     public static async void OnPrepareResponse(WebApplication app, StaticFileResponseContext ctx)
     {
         using var scope = app.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-        if (!await db.AllowedHosts.AnyAsync(x => x.Hostname == "*" || x.Hostname == ctx.Context.Request.Host.ToString()))
+        var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
+        var dbContext = await factory.CreateDbContextAsync();
+        
+        if (!await dbContext.AllowedHosts.AnyAsync(x => x.Hostname == "*" || x.Hostname == ctx.Context.Request.Host.ToString()))
         {
             ctx.Context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             ctx.Context.Response.ContentLength = 0;
@@ -20,22 +24,16 @@ public static class StaticFileOptionsHandler
             ctx.Context.Response.Headers.Add("Cache-Control", "no-store");
             return;
         }
-
-        var dir = new DirectoryInfo(ctx.File.PhysicalPath!);
-        var filename = dir.Name;
-        var bucketId = await db.BucketFiles.Where(x => x.FilePath == dir.ToString())
-            .Select(x => x.BucketId)
-            .FirstAsync();
-
+        
         var timestamp = DateTimeOffset.Now;
 
-        // Bucket private?
-        var bucketProhibited = await db.Buckets.AnyAsync(x => x.BucketId == bucketId && x.Private && !ctx.Context.User.Identity.IsAuthenticated);
-
-        // File private?
-        var fileProhibited = await db.BucketFiles.AnyAsync(x => x.StoredFileName == filename && x.BucketId == bucketId && x.Private && !ctx.Context.User.Identity.IsAuthenticated);
+        var dir = new DirectoryInfo(ctx.File.PhysicalPath!);
         
-        if (bucketProhibited || fileProhibited)
+        var file = await dbContext.BucketFiles
+            .Include(x => x.Bucket)
+            .FirstAsync(x => x.FilePath == dir.ToString());
+
+        if ((file.Bucket.Private || file.Private) && !ctx.Context.User.Identity.IsAuthenticated)
         {
             ctx.Context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             ctx.Context.Response.ContentLength = 0;
@@ -43,15 +41,19 @@ public static class StaticFileOptionsHandler
             ctx.Context.Response.Headers.Add("Cache-Control", "no-store");
         }
 
-        // Update counter and timestamp.
-        await db.Buckets.Where(x => x.BucketId == bucketId)
+        // Update timestamp for bucket
+        await dbContext.Buckets.Where(x => x.BucketId == file.BucketId)
             .ExecuteUpdateAsync(x => x.SetProperty(p => p.LastAccess, timestamp));
-
-        await db.BucketFiles.Where(x => x.StoredFileName == filename && x.BucketId == bucketId)
-            .ExecuteUpdateAsync(x => x.SetProperty(p => p.AccessCount, p => p.AccessCount + 1)
-                .SetProperty(p => p.LastAccess, p => timestamp));
+        
+        file.LastAccess = timestamp;
+        file.AccessCount += 1;
+        await dbContext.SaveChangesAsync();
 
         // Could add an option to the database that the file is "download only".
-        //ctx.Context.Response.Headers["Content-Disposition"] = $"attachment; filename={file.FileName}";
+        if (file.Bucket.AsDownload || file.AsDownload)
+        {
+            ctx.Context.Response.Headers.ContentDisposition += "attachment;";
+        }
+        ctx.Context.Response.Headers.ContentDisposition += $"filename={file.FileName}";
     }
 }

@@ -1,16 +1,14 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SimpleObjectStore.Filters;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Models.DTO;
 using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Controllers;
 
-[Route("api/v1/[controller]")]
-[ApiController]
-[Produces("application/json")]
-[ApiKey]
-public class StorageController(IStorageService service) : ControllerBase
+[Route("api/v1/[controller]"), ApiController, Produces("application/json"), Authorize(Roles = "objectstore")]
+public class StorageController(IStorageService<string> service) : ControllerBase
 {
     [HttpGet]
     public Task<IReadOnlyList<BucketFile>> GetFilesAsync() => service.ToListAsync();
@@ -35,4 +33,7 @@ public class StorageController(IStorageService service) : ControllerBase
 
     [HttpGet("storage_info")]
     public StorageInfoDto GetInfoAsync() => service.GetStorageStatsAsync();
+    
+    [HttpPatch]
+    public Task AsDownloadAsync(string id, bool asDownload) => service.AsDownloadAsync(id, asDownload);
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace SimpleObjectStore.Filters;
+namespace SimpleObjectStore.Controllers.Filters;
 
 public class ApiAuthorizationFilter : IAuthorizationFilter
 {

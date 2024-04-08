@@ -1,13 +1,16 @@
+using System.Security.Claims;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using SimpleObjectStore.Filters;
+using SimpleObjectStore.Auth;
 using SimpleObjectStore.Helpers;
 using SimpleObjectStore.Helpers.Interfaces;
 using SimpleObjectStore.Http;
 using SimpleObjectStore.Models;
+using SimpleObjectStore.Models.Configs;
 using SimpleObjectStore.Seeds;
 using SimpleObjectStore.Services;
 using SimpleObjectStore.Services.Interfaces;
@@ -40,21 +43,51 @@ if (!Directory.Exists(storageDirectory))
     Directory.CreateDirectory(storageDirectory);
 }
 
+Console.WriteLine($"DB directory: {Environment.GetEnvironmentVariable("DB_PATH")}");
+Console.WriteLine($"Storage directory: {storageDirectory}");
+
 // Build application.
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("DB_PATH")}"); });
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+        options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+    })
+    .AddApiKeySupport(options => {})
+    .AddJwtBearer(options =>
+    {
+        var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtConfig>();
+
+        options.Authority = jwtSettings!.Authority;
+        options.RequireHttpsMetadata = builder.Environment.IsProduction();
+        options.Audience = "account";
+        options.IncludeErrorDetails = !builder.Environment.IsProduction();
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            NameClaimType = "name",
+            RoleClaimType = ClaimTypes.Role,
+            ValidateAudience = false,
+            ValidateLifetime = false
+        };
+
+        options.MetadataAddress = jwtSettings.MetadataAddress;
+    });
+
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => { options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("DB_PATH")}"); });
 builder.Services.AddScoped<IApiKeysService, ApiKeysService>();
-builder.Services.AddScoped<IAuthorizationFilter, ApiAuthorizationFilter>();
-builder.Services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
+//builder.Services.AddScoped<IAuthorizationFilter, ApiAuthorizationFilter>();
+//builder.Services.AddScoped<IApiKeyValidator, ApiKeyValidator>();
 builder.Services.AddScoped<StorageNameValidator>();
 builder.Services.AddScoped<ISlug, StorageSlug>();
 builder.Services.AddScoped<IAllowedHostsService, AllowedHostsService>();
 builder.Services.AddScoped<IBucketsService, BucketsService>();
-builder.Services.AddScoped<IStorageService, StorageService>();
+builder.Services.AddScoped<IStorageService<string>, StorageService>();
 builder.Services.AddScoped<IKeyService, KeyService>();
 
 builder.Services.AddControllers()

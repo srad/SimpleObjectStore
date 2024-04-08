@@ -4,10 +4,12 @@ using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Services;
 
-public class AllowedHostsService(ApplicationDbContext context) : IAllowedHostsService
+public class AllowedHostsService(IDbContextFactory<ApplicationDbContext> factory) : IAllowedHostsService
 {
     public async Task DeleteAsync(string host)
     {
+        var context = await factory.CreateDbContextAsync();
+        
         if (await context.AllowedHosts.CountAsync() == 1)
         {
             throw new Exception("At least one host must remain in database");
@@ -16,7 +18,12 @@ public class AllowedHostsService(ApplicationDbContext context) : IAllowedHostsSe
         await context.AllowedHosts.Where(x => x.Hostname == host).ExecuteDeleteAsync();
     }
     
-    public async Task<IReadOnlyList<AllowedHost>> ToListAsync() => await context.AllowedHosts.ToListAsync();
+    public async Task<IReadOnlyList<AllowedHost>> ToListAsync()
+    {
+        var context = await factory.CreateDbContextAsync();
+        
+        return await context.AllowedHosts.ToListAsync();
+    }
 
     public async Task<AllowedHost> CreateAsync(string host)
     {
@@ -32,6 +39,8 @@ public class AllowedHostsService(ApplicationDbContext context) : IAllowedHostsSe
         {
             throw new Exception($"The hostname '{host}' is invalid");
         }
+        
+        var context = await factory.CreateDbContextAsync();
 
         if (await context.AllowedHosts.AnyAsync(x => x.Hostname == host))
         {

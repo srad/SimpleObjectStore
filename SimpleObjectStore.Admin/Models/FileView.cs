@@ -13,4 +13,5 @@ public class FileView
     public bool Private { get; set; }
     public string RelativeUrl { get; set; }
     public string AbsoluteUrl { get; set; }
+    public bool AsDownload { get; set; }
 }

@@ -1,6 +1,6 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SimpleObjectStore.Filters;
-using SimpleObjectStore.Models;
 using SimpleObjectStore.Models.DTO;
 using SimpleObjectStore.Services.Interfaces;
 
@@ -9,12 +9,12 @@ namespace SimpleObjectStore.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Produces("application/json")]
-[ApiKey]
+[Authorize(Roles = "objectstore")]
 public class BucketsController(IBucketsService service) : ControllerBase
 {
     [HttpGet]
     public Task<IReadOnlyList<BucketViewDto>> GetAsync() => service.ToListAsync();
-
+    
     [HttpGet($"{{{nameof(name)}}}/name")]
     public Task<BucketViewDto> GetByNameAsync(string name) => service.FindByNameAsync(name);
 
@@ -29,4 +29,8 @@ public class BucketsController(IBucketsService service) : ControllerBase
 
     [HttpDelete($"{{{nameof(id)}}}")]
     public Task DeleteAsync(string id) => service.DeleteAsync(id);
+    
+    [HttpPatch]
+    public Task AsDownloadAsync(string id, bool asDownload) => service.AsDownloadAsync(id, asDownload);
+
 }

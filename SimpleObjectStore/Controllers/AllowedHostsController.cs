@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SimpleObjectStore.Filters;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SimpleObjectStore.Models;
 using SimpleObjectStore.Services.Interfaces;
 
@@ -8,7 +9,7 @@ namespace SimpleObjectStore.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Produces("application/json")]
-[ApiKey]
+[Authorize(Roles = "objectstore")]
 public class AllowedHostsController(IAllowedHostsService service) : ControllerBase
 {
     [HttpGet]

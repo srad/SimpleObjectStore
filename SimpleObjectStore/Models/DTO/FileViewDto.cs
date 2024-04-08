@@ -12,4 +12,5 @@ public record FileViewDto
     public string StorageFileId { get; set; }
     public long FileSize { get; set; }
     public long AccessCount { get; set; }
+    public bool AsDownload { get; set; }
 }

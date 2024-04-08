@@ -1,7 +1,9 @@
 using System.Security.Claims;
+using Ansari.Frontend.Services.Handlers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using SimpleObjectStore.Admin;
 using SimpleObjectStore.Admin.Config;
@@ -26,6 +28,9 @@ builder.Services.AddSassCompiler();
 builder.Services.AddScoped<OpenIdConfig>();
 builder.Services.AddScoped<ApiConfig>();
 
+builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddTransient<AccessTokenHandler>();
+
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -35,7 +40,7 @@ builder.Services.AddAuthentication(options =>
     {
         options.LoginPath = "/login";
         options.LogoutPath = "/logout";
-        options.AccessDeniedPath = new PathString("/access-denied");
+        options.AccessDeniedPath = "/access-denied";
         options.Cookie.Name = "SimpleObjectStore";
         options.Cookie.Path = "/; SameSite=None";
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -83,10 +88,11 @@ builder.Services.AddHttpClient("api", client =>
     var endpoint = builder.Configuration["API:Endpoint"];
     var key = builder.Configuration["API:Key"];
 
+    //client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
     client.BaseAddress = new Uri(endpoint ?? throw new MissingMemberException("missing endpoint"));
     client.DefaultRequestHeaders.Add("X-API-Key", key);
     client.Timeout = TimeSpan.FromMinutes(30);
-});
+});//.AddHttpMessageHandler<AccessTokenHandler>();
 
 builder.Services.AddScoped<SimpleObjectStoreClient>(x =>
 {

@@ -27,6 +27,7 @@ public class BucketFile
     [Required] public long AccessCount { get; set; }
     [Required] public bool Private { get; set; }
     [Required] public DateTimeOffset LastAccess { get; set; }
+    [Required] public bool AsDownload { get; set; }
 
     [JsonIgnore] public Bucket Bucket { get; set; }
     [JsonIgnore] [Required] public string BucketId { get; set; }

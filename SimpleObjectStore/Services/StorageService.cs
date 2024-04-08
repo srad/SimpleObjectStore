@@ -6,17 +6,24 @@ using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Services;
 
-public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<StorageService> logger, IHttpContextAccessor _httpContextAccessor) : IStorageService
+public class StorageService(IDbContextFactory<ApplicationDbContext> factory, ISlug slug, ILogger<StorageService> logger, IHttpContextAccessor _httpContextAccessor) : IStorageService<string>
 {
     private readonly string _storagePath = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY") ?? throw new ArgumentNullException();
     private string BucketPath(string directoryName) => Path.Combine(_storagePath, directoryName);
 
     private readonly string _url = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}";
 
-    public async Task<IReadOnlyList<BucketFile>> ToListAsync() => await context.BucketFiles.AsNoTracking().ToListAsync();
+    public async Task<IReadOnlyList<BucketFile>> ToListAsync()
+    {
+        var context = await factory.CreateDbContextAsync();
+        
+        return await context.BucketFiles.AsNoTracking().ToListAsync();
+    }
 
     public async Task<BucketFile> FindByIdAsync(string id)
     {
+        var context = await factory.CreateDbContextAsync();
+        
         var storageFile = await context.BucketFiles.FindAsync(id);
 
         if (storageFile == null)
@@ -36,10 +43,17 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
     /// <param name="bucketId"></param>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    public async Task<bool> ExistsAsync(string bucketId, string fileName) => await context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == slug.Generate(fileName));
+    public async Task<bool> ExistsAsync(string bucketId, string fileName)
+    {
+        var context = await factory.CreateDbContextAsync();
+        
+        return await context.BucketFiles.AnyAsync(x => x.BucketId == bucketId && x.StoredFileName == slug.Generate(fileName));
+    }
 
     public async Task<IReadOnlyList<CreateFileDto>> SaveAsync(string bucketId, List<IFormFile> files)
     {
+        var context = await factory.CreateDbContextAsync();
+        
         var bucket = await context.Buckets
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.BucketId == bucketId);
@@ -146,6 +160,8 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
 
     public async Task DeleteAsync(string id)
     {
+        var context = await factory.CreateDbContextAsync();
+        
         var storageFile = await context.BucketFiles.FindAsync(id);
         if (storageFile == null)
         {
@@ -166,13 +182,23 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
         }
     }
 
-    public async Task PrivateAsync(string id) => await context.BucketFiles
-        .Where(x => x.StorageFileId == id)
-        .ExecuteUpdateAsync(x => x.SetProperty(p => p.Private, true));
+    public async Task PrivateAsync(string id)
+    {
+        var context = await factory.CreateDbContextAsync();
+        
+        await context.BucketFiles
+            .Where(x => x.StorageFileId == id)
+            .ExecuteUpdateAsync(x => x.SetProperty(p => p.Private, true));
+    }
 
-    public async Task PublicAsync(string id) => await context.BucketFiles
-        .Where(x => x.StorageFileId == id)
-        .ExecuteUpdateAsync(x => x.SetProperty(p => p.Private, false));
+    public async Task PublicAsync(string id)
+    {
+        var context = await factory.CreateDbContextAsync();
+        
+        await context.BucketFiles
+            .Where(x => x.StorageFileId == id)
+            .ExecuteUpdateAsync(x => x.SetProperty(p => p.Private, false));
+    }
 
     public StorageInfoDto GetStorageStatsAsync()
     {
@@ -187,5 +213,14 @@ public class StorageService(ApplicationDbContext context, ISlug slug, ILogger<St
             AvailablePercent = free / total * 100,
             Name = drive.Name
         };
+    }
+    
+    public async Task AsDownloadAsync(string id, bool download)
+    {
+        var context = await factory.CreateDbContextAsync();
+
+        await context.BucketFiles
+            .Where(x => x.StorageFileId == id)
+            .ExecuteUpdateAsync(p => p.SetProperty(x => x.AsDownload, download));
     }
 }
