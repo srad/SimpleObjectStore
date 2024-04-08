@@ -58,7 +58,7 @@ builder.Services.AddAuthentication(options =>
         options.NonceCookie.SecurePolicy = CookieSecurePolicy.Always;
         options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.AccessDeniedPath = new PathString("/access-denied");
+        options.AccessDeniedPath = "/access-denied";
         options.SignedOutRedirectUri = "/signed-out";
         options.Authority = authority;
         options.ClientId = clientId;
@@ -78,6 +78,22 @@ builder.Services.AddAuthentication(options =>
             {
                 context.HandleResponse();
                 context.Response.Redirect("/access-denied");
+
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = ctx =>
+            {
+                ctx.Response.Redirect($"/error?error={Uri.EscapeDataString(ctx.Exception.Message[..Math.Min(1024, ctx.Exception.Message.Length)])}");
+                ctx.HandleResponse(); // Suppress the exception.
+
+                return Task.CompletedTask;
+            },
+
+            OnRemoteFailure = ctx =>
+            {
+                ctx.Response.Redirect($"/error");
+                ctx.HandleResponse();
+
                 return Task.CompletedTask;
             },
         };
@@ -92,7 +108,7 @@ builder.Services.AddHttpClient("api", client =>
     client.BaseAddress = new Uri(endpoint ?? throw new MissingMemberException("missing endpoint"));
     client.DefaultRequestHeaders.Add("X-API-Key", key);
     client.Timeout = TimeSpan.FromMinutes(30);
-});//.AddHttpMessageHandler<AccessTokenHandler>();
+}); //.AddHttpMessageHandler<AccessTokenHandler>();
 
 builder.Services.AddScoped<SimpleObjectStoreClient>(x =>
 {

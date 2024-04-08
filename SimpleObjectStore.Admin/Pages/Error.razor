@@ -1,0 +1,18 @@
+﻿@page "/error"
+
+@attribute [AllowAnonymous]
+
+<h3>Error</h3>
+
+@if (ErrorMessage != null)
+{
+    <div class="alert alert-danger my-3">@ErrorMessage</div>
+}
+
+@code {
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? ErrorMessage { get; set; }
+
+}
