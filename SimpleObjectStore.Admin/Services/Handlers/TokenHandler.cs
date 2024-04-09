@@ -10,7 +10,10 @@ public class AccessTokenHandler(IHttpContextAccessor accessor) : DelegatingHandl
         if (accessor.HttpContext != null)
         {
             var accessToken = await accessor.HttpContext.GetTokenAsync("access_token");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            if (accessToken != null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            }
         }
 
         // Continue down stream request.

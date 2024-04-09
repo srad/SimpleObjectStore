@@ -108,7 +108,7 @@ builder.Services.AddHttpClient("api", client =>
     client.BaseAddress = new Uri(endpoint ?? throw new MissingMemberException("missing endpoint"));
     client.DefaultRequestHeaders.Add("X-API-Key", key);
     client.Timeout = TimeSpan.FromMinutes(30);
-}); //.AddHttpMessageHandler<AccessTokenHandler>();
+}).AddHttpMessageHandler<AccessTokenHandler>();
 
 builder.Services.AddScoped<SimpleObjectStoreClient>(x =>
 {
