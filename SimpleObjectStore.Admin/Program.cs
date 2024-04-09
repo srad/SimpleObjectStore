@@ -91,7 +91,7 @@ builder.Services.AddAuthentication(options =>
 
             OnRemoteFailure = ctx =>
             {
-                ctx.Response.Redirect($"/error");
+                ctx.Response.Redirect("/error");
                 ctx.HandleResponse();
 
                 return Task.CompletedTask;
