@@ -15,7 +15,9 @@ public class AuthController : Microsoft.AspNetCore.Mvc.Controller
 
     public async Task Logout()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+        await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, new AuthenticationProperties
+        {
+            RedirectUri = "/signed-out"
+        });
     }
 }
