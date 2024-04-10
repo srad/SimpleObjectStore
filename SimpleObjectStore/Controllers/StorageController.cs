@@ -7,7 +7,8 @@ using SimpleObjectStore.Services.Interfaces;
 
 namespace SimpleObjectStore.Controllers;
 
-[Route("api/v1/[controller]"), ApiController, Produces("application/json"), Authorize(Roles = "objectstore")]
+[Route("api/v1/[controller]"), ApiController, Produces("application/json")]
+[Authorize]
 public class StorageController(IStorageService<string> service) : ControllerBase
 {
     [HttpGet]

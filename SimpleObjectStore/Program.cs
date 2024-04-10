@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -55,10 +57,12 @@ builder.Services.AddHttpContextAccessor();
 builder.Services
     .AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
-        options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddApiKeySupport(options => {})
+    .AddApiKeySupport(options =>
+    {
+    })
     .AddJwtBearer(options =>
     {
         var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtConfig>();
@@ -75,9 +79,18 @@ builder.Services
             ValidateAudience = false,
             ValidateLifetime = false
         };
-
+        
         options.MetadataAddress = jwtSettings.MetadataAddress;
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    var defaultAuthorizationPolicyBuilder = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme, ApiKeyAuthenticationOptions.DefaultScheme);
+    defaultAuthorizationPolicyBuilder = defaultAuthorizationPolicyBuilder
+        .RequireAuthenticatedUser()
+        .RequireRole("objectstore");
+    options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
+});
 
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options => { options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("DB_PATH")}"); });
 builder.Services.AddScoped<IApiKeysService, ApiKeysService>();

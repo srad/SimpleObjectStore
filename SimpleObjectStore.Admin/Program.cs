@@ -104,9 +104,13 @@ builder.Services.AddHttpClient("api", client =>
     var endpoint = builder.Configuration["API:Endpoint"];
     var key = builder.Configuration["API:Key"];
 
-    //client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+    // If the application wants to use an API key, add it to the http client's header.
+    if (key != null)
+    {
+        client.DefaultRequestHeaders.Add("X-API-Key", key);
+    }
+
     client.BaseAddress = new Uri(endpoint ?? throw new MissingMemberException("missing endpoint"));
-    client.DefaultRequestHeaders.Add("X-API-Key", key);
     client.Timeout = TimeSpan.FromMinutes(30);
 }).AddHttpMessageHandler<AccessTokenHandler>();
 

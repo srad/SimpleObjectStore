@@ -9,7 +9,7 @@ namespace SimpleObjectStore.Controllers;
 [Route("api/v1/[controller]")]
 [ApiController]
 [Produces("application/json")]
-[Authorize(Roles = "objectstore")]
+[Authorize]
 public class ApiKeysController(IApiKeysService service) : ControllerBase
 {
     [HttpGet]
