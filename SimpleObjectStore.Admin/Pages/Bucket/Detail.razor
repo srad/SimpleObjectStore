@@ -190,7 +190,6 @@
             FileCount = bucketResponse.FileCount,
             Files = bucketResponse.Files.Select(x => new FileView
             {
-                RelativeUrl = x.RelativeUrl,
                 AbsoluteUrl = x.AbsoluteUrl,
                 FileName = x.FileName,
                 FileSize = x.FileSize,
@@ -250,23 +249,22 @@
                     var responses = await Client.StorageSaveFileAsync(BucketId, uploads);
                     uploadResults.AddRange(responses);
 
-                    foreach (var r in responses)
+                    foreach (var response in responses)
                     {
-                        if (r.Success)
+                        if (response.Success)
                         {
                             Bucket?.Files.Add(new FileView
                             {
-                                AbsoluteUrl = r.File.AbsoluteUrl,
-                                FileName = r.FileName,
-                                FileSizeMB = r.File.FileSizeMB,
-                                StorageFileId = r.File.StorageFileId,
-                                AccessCount = r.File.AccessCount,
-                                LastAccess = r.File.LastAccess.ToString("dd.MM.yyyy hh:mm"),
-                                CreatedAt = r.File.CreatedAt.ToString("dd.MM.yyyy hh:mm"),
+                                AbsoluteUrl = response.BucketFile.Url,
+                                FileName = response.BucketFile.FileName,
+                                FileSizeMB = response.BucketFile.FileSizeMB,
+                                StorageFileId = response.BucketFile.StorageFileId,
+                                AccessCount = response.BucketFile.AccessCount,
+                                LastAccess = response.BucketFile.LastAccess.ToString("dd.MM.yyyy hh:mm"),
+                                CreatedAt = response.BucketFile.CreatedAt.ToString("dd.MM.yyyy hh:mm"),
                                 Selected = false,
-                                FileSize = r.File.FileSize,
-                                Private = r.File.Private,
-                                RelativeUrl = r.File.RelativeUrl,
+                                FileSize = response.BucketFile.FileSize,
+                                Private = response.BucketFile.Private,
                             });
                             Bucket.FileCount += 1;
                             await InvokeAsync(StateHasChanged);
@@ -287,7 +285,7 @@
 
             foreach (var result in uploadResults.Where(result => !result.Success))
             {
-                Messages.AppendLine($"Error for '{result.FileName}': {result.ErrorMessage}.");
+                Messages.AppendLine(result.ErrorMessage);
             }
         }
         catch (Exception ex)

@@ -33,7 +33,7 @@ builder.Services.AddTransient<AccessTokenHandler>();
 
 builder.Services.AddAuthentication(options =>
     {
-        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultScheme = OpenIdConnectDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
     })
     .AddCookie(options =>
@@ -74,17 +74,10 @@ builder.Services.AddAuthentication(options =>
 
         options.Events = new OpenIdConnectEvents
         {
-            OnAccessDenied = context =>
-            {
-                context.HandleResponse();
-                context.Response.Redirect("/access-denied");
-
-                return Task.CompletedTask;
-            },
             OnAuthenticationFailed = ctx =>
             {
-                ctx.Response.Redirect($"/error?error={Uri.EscapeDataString(ctx.Exception.Message[..Math.Min(1024, ctx.Exception.Message.Length)])}");
                 ctx.HandleResponse(); // Suppress the exception.
+                ctx.Response.Redirect($"/error?error={Uri.EscapeDataString(ctx.Exception.Message[..Math.Min(1024, ctx.Exception.Message.Length)])}");
 
                 return Task.CompletedTask;
             },
@@ -141,7 +134,6 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseHsts();
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCookiePolicy();
 app.UseRouting();

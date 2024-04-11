@@ -11,7 +11,6 @@ public class FileView
     public bool Selected { get; set; }
     public long FileSize { get; set; }
     public bool Private { get; set; }
-    public string RelativeUrl { get; set; }
     public string AbsoluteUrl { get; set; }
     public bool AsDownload { get; set; }
 }

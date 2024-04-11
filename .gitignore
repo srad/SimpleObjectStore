@@ -265,6 +265,7 @@ __pycache__/
 data
 
 SimpleObjectStore.Admin/appsettings.Development.json
+SimpleObjectStore/appsettings.Development.json
 .env
 keys
 Resources/bin

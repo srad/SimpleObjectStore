@@ -2087,14 +2087,8 @@ namespace SimpleObjectStore.Admin.Services.v1
     public partial record CreateFileDto
     {
 
-        [System.Text.Json.Serialization.JsonPropertyName("fileName")]
-        public string FileName { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("url")]
-        public string Url { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("file")]
-        public FileViewDto File { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("bucketFile")]
+        public BucketFile BucketFile { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("success")]
         public bool Success { get; set; }
