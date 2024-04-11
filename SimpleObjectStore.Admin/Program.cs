@@ -120,20 +120,19 @@ builder.Services.AddScoped<SimpleObjectStoreClient>(x =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    app.UseExceptionHandler("/Error");
+    app.UseForwardedHeaders();
+    app.UseHsts();
 }
 else
 {
-    app.UseExceptionHandler("/Error");
+    app.UseDeveloperExceptionPage();
+    app.UseForwardedHeaders();
 }
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedProto
-});
+builder.Services.Configure<ForwardedHeadersOptions>(options => { options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto; });
 
 app.UseHsts();
 app.UseStaticFiles();
