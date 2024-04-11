@@ -15,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<OpenIdConfig>(builder.Configuration.GetSection("OpenId"));
 builder.Services.Configure<ApiConfig>(builder.Configuration.GetSection("API"));
 
+builder.Services.Configure<ForwardedHeadersOptions>(options => { options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto; });
 builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
@@ -131,8 +132,6 @@ else
     app.UseDeveloperExceptionPage();
     app.UseForwardedHeaders();
 }
-
-builder.Services.Configure<ForwardedHeadersOptions>(options => { options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto; });
 
 app.UseHsts();
 app.UseStaticFiles();
