@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Ansari.Frontend.Services.Handlers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -33,7 +34,7 @@ builder.Services.AddTransient<AccessTokenHandler>();
 
 builder.Services.AddAuthentication(options =>
     {
-        options.DefaultScheme = OpenIdConnectDefaults.AuthenticationScheme;
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
     })
     .AddCookie(options =>
@@ -66,6 +67,7 @@ builder.Services.AddAuthentication(options =>
         options.ResponseType = "code";
         options.SaveTokens = true;
         options.GetClaimsFromUserInfoEndpoint = true;
+        options.ClaimActions.MapUniqueJsonKey(ClaimsIdentity.DefaultRoleClaimType, "roles");
         options.UseTokenLifetime = false;
         options.RequireHttpsMetadata = builder.Environment.IsProduction() && !(builder.Configuration["DisableHttpsMetadata"] != null && builder.Configuration["DisableHttpsMetadata"] == "true");
         options.Scope.Clear();

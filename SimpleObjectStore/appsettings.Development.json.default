@@ -1,0 +1,13 @@
+﻿{
+  "JwtSettings": {
+    "Authority": "http://localhost:9000/realms/myrealm",
+    "MetadataAddress": "http://localhost:9000/realms/myrealm/.well-known/openid-configuration"
+  },
+  "DetailedErrors": true,
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  }
+}

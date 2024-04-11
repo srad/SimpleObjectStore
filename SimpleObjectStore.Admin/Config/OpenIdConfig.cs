@@ -1,6 +1,5 @@
 ﻿namespace SimpleObjectStore.Admin.Config;
 
-
 public class OpenIdConfig
 {
     public string Authority { get; set; }
