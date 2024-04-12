@@ -119,6 +119,8 @@ builder.Services.AddScoped<SimpleObjectStoreClient>(x =>
     return new SimpleObjectStoreClient(endpoint, httpClient);
 });
 
+builder.Services.Configure<ForwardedHeadersOptions>(options => { options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto; });
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -133,9 +135,7 @@ else
     app.UseForwardedHeaders();
 }
 
-app.UseHsts();
 app.UseStaticFiles();
-app.UseCookiePolicy();
 app.UseRouting();
 app.UseAntiforgery();
 app.UseAuthentication();
