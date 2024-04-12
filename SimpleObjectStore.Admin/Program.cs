@@ -123,18 +123,25 @@ builder.Services.Configure<ForwardedHeadersOptions>(options => { options.Forward
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
+app.Use((context, next) =>
+{
+    context.Request.Scheme = "https";
+    return next(context);
+});
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    app.UseForwardedHeaders();
+}
+else
 {
     app.UseExceptionHandler("/Error");
     app.UseForwardedHeaders();
     app.UseHsts();
 }
-else
-{
-    app.UseDeveloperExceptionPage();
-    app.UseForwardedHeaders();
-}
 
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAntiforgery();
