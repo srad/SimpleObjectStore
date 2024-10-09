@@ -277,3 +277,4 @@ SimpleObjectStore.Admin/wwwroot/fonts/**
 SimpleObjectStore.Admin/node_modules
 SimpleObjectStore.Admin/wwwroot/js
 SimpleObjectStore.Admin/wwwroot/css
+*.sqlite

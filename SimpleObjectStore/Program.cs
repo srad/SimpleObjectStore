@@ -32,6 +32,7 @@ if (Environment.GetEnvironmentVariable("DB_PATH") == null)
 {
     var defaultDbPath = Path.Combine(defaultAppDirectory, "data.db");
     Environment.SetEnvironmentVariable("DB_PATH", defaultDbPath);
+    Console.WriteLine("Using default DB path: " + defaultDbPath);
 }
 
 var storageDirectory = Environment.GetEnvironmentVariable("STORAGE_DIRECTORY");
@@ -92,7 +93,10 @@ builder.Services.AddAuthorization(options =>
     options.DefaultPolicy = defaultAuthorizationPolicyBuilder.Build();
 });
 
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options => { options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("DB_PATH")}"); });
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+{
+    options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("DB_PATH")}");
+});
 builder.Services.AddScoped<IApiKeysService, ApiKeysService>();
 //builder.Services.AddScoped<IAuthorizationFilter, ApiAuthorizationFilter>();
 //builder.Services.AddScoped<IApiKeyValidator, ApiKeyValidator>();

@@ -6,7 +6,7 @@ if not exist ".\Resources\bin" (
 
 if not exist ".\Resources\bin\nswag" (
     echo "Downloading nswag ..."
-    curl.exe  --output .\Resources\bin\nswag.zip -L https://github.com/RicoSuter/NSwag/releases/download/v14.0.7/NSwag.zip
+    curl.exe  --output .\Resources\bin\nswag.zip -L https://github.com/RicoSuter/NSwag/releases/download/v14.1.0/NSwag.zip
     md .\Resources\bin\nswag
     tar -xf .\Resources\bin\nswag.zip -C .\Resources\bin\nswag
     del .\Resources\bin\nswag.zip

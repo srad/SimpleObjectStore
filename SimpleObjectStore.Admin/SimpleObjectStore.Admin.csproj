@@ -14,19 +14,19 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="AspNetCore.SassCompiler" Version="1.74.1" />
-        <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.4.4">
+        <PackageReference Include="AspNetCore.SassCompiler" Version="1.79.3" />
+        <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.6.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.4" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.4" />
-        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.5.1" />
-        <PackageReference Include="Microsoft.OpenApi" Version="1.6.14" />
-        <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="14.0.7" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.10" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.1.2" />
+        <PackageReference Include="Microsoft.OpenApi" Version="1.6.22" />
+        <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="14.1.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -43,6 +43,10 @@
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
           <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="appsettings.Development.json" />
     </ItemGroup>
 
     <Target Name="CopyFiles" AfterTargets="Compile">
